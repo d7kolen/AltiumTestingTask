@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Altium.Core
 {
-    public class FileWriter
+    public class FileWriter : IDisposable
     {
         const int _fileBufferSize = 1_000_000;
         const int _maxNumber = 9_999;
@@ -15,44 +15,40 @@ namespace Altium.Core
         const int _minStringSize = 3;
         const int _maxStringSize = 25;
 
-        private readonly string _fileName;
+        private StreamWriter _writer;
 
         public FileWriter(string fileName)
         {
-            _fileName = fileName;
+            var stream = new FileStream(fileName, FileMode.CreateNew, FileAccess.Write);
+
+            //writer will close the 'stream' implicitly
+            _writer = new StreamWriter(stream, Encoding.UTF8, _fileBufferSize);
         }
 
-        public async Task CreateRandomFileAsync(int count)
+        public async Task WriteRandomRowsAsync(int count)
         {
-            await using var stream = new FileStream(_fileName, FileMode.CreateNew, FileAccess.Write);
-            await using var writer = new StreamWriter(stream, Encoding.UTF8, _fileBufferSize);
-
             var random = new Random();
 
             for (int i = 0; i < count; i++)
             {
                 await WriteRowAsync(
-                    writer,
                     random.Next(_maxNumber),
                     RandomString(random, _alphabet, _alphabetLen));
             }
         }
 
-        public async Task CreateFileAsync(List<RowDto> rows)
+        public async Task WriteRowsAsync(List<RowDto> rows)
         {
-            await using var stream = new FileStream(_fileName, FileMode.CreateNew, FileAccess.Write);
-            await using var writer = new StreamWriter(stream, Encoding.UTF8, _fileBufferSize);
-
             foreach (var t in rows)
-                await WriteRowAsync(writer, t.Number, t.StringValue);
+                await WriteRowAsync(t.Number, t.StringValue);
         }
 
-        private async Task WriteRowAsync(StreamWriter writer, int number, string stringValue)
+        private async Task WriteRowAsync(int number, string stringValue)
         {
-            await writer.WriteAsync(number.ToString());
-            await writer.WriteAsync(". ");
-            await writer.WriteAsync(stringValue);
-            await writer.WriteLineAsync();
+            await _writer.WriteAsync(number.ToString());
+            await _writer.WriteAsync(". ");
+            await _writer.WriteAsync(stringValue);
+            await _writer.WriteLineAsync();
         }
 
         private const string _alphabet = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -65,6 +61,15 @@ namespace Altium.Core
                 .Select(_ => alphabet[random.Next(alphabetLen)]);
 
             return string.Concat(symbols);
+        }
+
+        public void Dispose()
+        {
+            if (_writer == null)
+                return;
+
+            _writer.Dispose();
+            _writer = null;
         }
     }
 }

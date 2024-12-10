@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 namespace Altium.Tests;
 
 [TestFixture]
-public class SortedSegmentsFactoryTests : IRowFileTest
+public class SegmentsSorterTests
 {
     [Test]
     public async Task SegmentSorting()
     {
         var folder = TempFolder.Create();
-        
+
         var rows = new List<RowDto>
         {
             new RowDto(7, "abc"),
@@ -22,7 +22,7 @@ public class SortedSegmentsFactoryTests : IRowFileTest
             new RowDto(5, "abc")
         };
 
-        var segments = new SortedSegmentsFactory(folder.SubPath("segments"), 8);
+        var segments = new SegmentsSorter(folder.SubPath("segments"), 8);
         var fileList = await segments.CreateSegmentFiles(rows);
 
         fileList.Should().HaveCount(2);
@@ -51,7 +51,7 @@ public class SortedSegmentsFactoryTests : IRowFileTest
             new RowDto(5, "abc")
         };
 
-        var segments = new SortedSegmentsFactory(folder.SubPath("segments"), 100);
+        var segments = new SegmentsSorter(folder.SubPath("segments"), 100);
         var fileList = await segments.CreateSegmentFiles(rows);
 
         fileList.Should().HaveCount(1);
@@ -75,7 +75,7 @@ public class SortedSegmentsFactoryTests : IRowFileTest
             new RowDto(5, "abc")
         };
 
-        var segments = new SortedSegmentsFactory(folder.SubPath("segments"), 100);
+        var segments = new SegmentsSorter(folder.SubPath("segments"), 100);
         var fileList = await segments.CreateSegmentFiles(rows);
 
         fileList.Should().HaveCount(1);
@@ -98,7 +98,7 @@ public class SortedSegmentsFactoryTests : IRowFileTest
             new RowDto(6, "abc") //StringValue has sorting priority
         };
 
-        var segments = new SortedSegmentsFactory(folder.SubPath("segments"), 100);
+        var segments = new SegmentsSorter(folder.SubPath("segments"), 100);
         var fileList = await segments.CreateSegmentFiles(rows);
 
         fileList.Should().HaveCount(1);

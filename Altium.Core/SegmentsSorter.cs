@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Altium.Core;
 
-public class SortedSegmentsFactory
+public class SegmentsSorter
 {
     private readonly RowDtoComparer _comparer = new();
     private readonly string _folder;
@@ -13,7 +13,7 @@ public class SortedSegmentsFactory
     /// <summary>
     /// segmentSize is approximately segment size. Usually, we will have a bigger segment on one additional block.
     /// </summary>
-    public SortedSegmentsFactory(string folder, int maxSegmentSize)
+    public SegmentsSorter(string folder, int maxSegmentSize)
     {
         _folder = folder;
         _maxSegmentSize = maxSegmentSize;
@@ -54,20 +54,9 @@ public class SortedSegmentsFactory
         segmentRows.Sort(_comparer);
 
         var segmentFileName = Path.Combine(_folder, segmentNumber.ToString() + ".txt");
-        await new FileWriter(segmentFileName).CreateFileAsync(segmentRows);
+        using var writer = new FileWriter(segmentFileName);
+        await writer.WriteRowsAsync(segmentRows);
 
         return segmentFileName;
-    }
-}
-
-class RowDtoComparer : IComparer<RowDto>
-{
-    public int Compare(RowDto x, RowDto y)
-    {
-        var result = x.StringValue.CompareTo(y.StringValue);
-        if (result != 0)
-            return result;
-
-        return x.Number.CompareTo(y.Number);
     }
 }
