@@ -1,52 +1,49 @@
-# Prerequisites
-*.d
+# Build Folders
+bin/
+obj/
 
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
-# Linker output
-*.ilk
-*.map
-*.exp
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
 
-# Precompiled Headers
-*.gch
-*.pch
+# Windows Installer files
+*.vssscc
+*.vspscc
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
+# VS Code
+.vscode/
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+# Rider
+.idea/
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
+# Windows image file caches
+Thumbs.db
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# JetBrains Rider
+.idea/
+
+# User-specific files
+.vs/
+
+# Uncomment if you have tasks that create project's database
+# database/
+
+# JetBrains Rider
+.idea/
