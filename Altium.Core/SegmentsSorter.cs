@@ -19,7 +19,7 @@ public class SegmentsSorter
         _maxSegmentSize = maxSegmentSize;
     }
 
-    public async Task<List<string>> CreateSegmentFiles(IEnumerable<RowDto> rows)
+    public async Task<List<string>> CreateSegments(IEnumerable<RowDto> rows)
     {
         var currentSegmentSize = 0;
         List<RowDto> segmentRows = new();

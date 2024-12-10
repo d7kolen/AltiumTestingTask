@@ -20,7 +20,7 @@ public class SegmentsMerger
         _readingBufferSize = readingBufferSize;
     }
 
-    public async Task Merge(params string[] files)
+    public async Task MergeSegments(params string[] files)
     {
         var bufferSize = _readingBufferSize / files.Length;
 

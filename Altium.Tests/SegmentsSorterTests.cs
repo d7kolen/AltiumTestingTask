@@ -23,7 +23,7 @@ public class SegmentsSorterTests
         };
 
         var segments = new SegmentsSorter(folder.SubPath("segments"), 8);
-        var fileList = await segments.CreateSegmentFiles(rows);
+        var fileList = await segments.CreateSegments(rows);
 
         fileList.Should().HaveCount(2);
 
@@ -52,7 +52,7 @@ public class SegmentsSorterTests
         };
 
         var segments = new SegmentsSorter(folder.SubPath("segments"), 100);
-        var fileList = await segments.CreateSegmentFiles(rows);
+        var fileList = await segments.CreateSegments(rows);
 
         fileList.Should().HaveCount(1);
 
@@ -76,7 +76,7 @@ public class SegmentsSorterTests
         };
 
         var segments = new SegmentsSorter(folder.SubPath("segments"), 100);
-        var fileList = await segments.CreateSegmentFiles(rows);
+        var fileList = await segments.CreateSegments(rows);
 
         fileList.Should().HaveCount(1);
 
@@ -99,7 +99,7 @@ public class SegmentsSorterTests
         };
 
         var segments = new SegmentsSorter(folder.SubPath("segments"), 100);
-        var fileList = await segments.CreateSegmentFiles(rows);
+        var fileList = await segments.CreateSegments(rows);
 
         fileList.Should().HaveCount(1);
 
