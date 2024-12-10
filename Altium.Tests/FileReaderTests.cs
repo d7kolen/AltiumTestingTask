@@ -13,7 +13,7 @@ public class FileReaderTests : IRowFileTest
     public async Task ReadRow()
     {
         var folder = TempFolder.Create();
-        var file = folder.SubFile("1.txt");
+        var file = folder.SubPath("1.txt");
 
         await this.AppendLineToFile(file, "5. abc");
 
@@ -28,7 +28,7 @@ public class FileReaderTests : IRowFileTest
     public async Task ReadRow_SeveralLines()
     {
         var folder = TempFolder.Create();
-        var file = folder.SubFile("1.txt");
+        var file = folder.SubPath("1.txt");
 
         await this.AppendLineToFile(file, "5. abc");
         await this.AppendLineToFile(file, "7. def");
@@ -48,7 +48,7 @@ public class FileReaderTests : IRowFileTest
     public async Task ReadRow_By_TwoReaders()
     {
         var folder = TempFolder.Create();
-        var file = folder.SubFile("1.txt");
+        var file = folder.SubPath("1.txt");
 
         await this.AppendLineToFile(file, "5. abc");
         await this.AppendLineToFile(file, "7. def");

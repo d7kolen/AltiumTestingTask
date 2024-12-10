@@ -77,7 +77,7 @@ class TempFolder
         return Path.Combine(assemblyDir, "temp");
     }
 
-    public string SubFile(string name)
+    public string SubPath(string name)
     {
         return Path.Combine(Folder, name);
     }

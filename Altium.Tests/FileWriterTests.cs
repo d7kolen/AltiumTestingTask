@@ -15,15 +15,15 @@ public class ReadFileTests
     {
         var folder = TempFolder.Create();
 
-        var file = folder.SubFile("1.txt");
+        var file = folder.SubPath("1.txt");
 
-        var generator = new FileWriter(1);
-        await generator.CreateRandomFileAsync(file);
+        var generator = new FileWriter(file);
+        await generator.CreateRandomFileAsync(1);
 
         File.Exists(file);
 
         using var reader = new StreamReader(file);
-        var line = reader.ReadLine();
+        var line = reader.ReadLine()!;
 
         var parts = line.Split(". ");
         parts.Should().HaveCount(2);
@@ -40,10 +40,10 @@ public class ReadFileTests
     {
         var folder = TempFolder.Create();
 
-        var file = folder.SubFile("1.txt");
+        var file = folder.SubPath("1.txt");
 
-        var generator = new FileWriter(2);
-        await generator.CreateRandomFileAsync(file);
+        var generator = new FileWriter(file);
+        await generator.CreateRandomFileAsync(2);
 
         File.Exists(file);
 
@@ -56,9 +56,9 @@ public class ReadFileTests
     public async Task NewFile_Can_Be_Read()
     {
         var folder = TempFolder.Create();
-        var file = folder.SubFile("1.txt");
+        var file = folder.SubPath("1.txt");
 
-        await new FileWriter(2).CreateRandomFileAsync(file);
+        await new FileWriter(file).CreateRandomFileAsync(2);
 
         var rows = new FileReader(file, 0).Read().ToList();
 
