@@ -20,9 +20,9 @@ public class SegmentsMerger
         _readingBufferSize = readingBufferSize;
     }
 
-    public async Task MergeSegments(params string[] files)
+    public async Task MergeSegmentsAsync(List<string> files)
     {
-        var bufferSize = _readingBufferSize / files.Length;
+        var bufferSize = _readingBufferSize / files.Count;
 
         var fullInputList = new List<IEnumerator<RowDto>>();
         var actualList = new List<IEnumerator<RowDto>>();
@@ -56,7 +56,7 @@ public class SegmentsMerger
             actualList.Remove(tList);
     }
 
-    void CreateInputStreams(string[] files, int bufferSize, List<IEnumerator<RowDto>> fullList)
+    void CreateInputStreams(List<string> files, int bufferSize, List<IEnumerator<RowDto>> fullList)
     {
         foreach (var t in files)
         {

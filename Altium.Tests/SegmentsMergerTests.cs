@@ -22,7 +22,7 @@ public class SegmentsMergerTests : IRowFileTest
 
         var fileResult = folder.SubPath("res.txt");
         var segments = new SegmentsMerger(fileResult, 100);
-        await segments.MergeSegments(file1, file2);
+        await segments.MergeSegmentsAsync(new() { file1, file2 });
 
         var resultRows = new FileReader(fileResult, 0).Read().ToList();
 
@@ -44,7 +44,7 @@ public class SegmentsMergerTests : IRowFileTest
 
         var fileResult = folder.SubPath("res.txt");
         var segments = new SegmentsMerger(fileResult, 100);
-        await segments.MergeSegments(file2, file1); //other file order
+        await segments.MergeSegmentsAsync(new() { file2, file1 }); //other file order
 
         var resultRows = new FileReader(fileResult, 0).Read().ToList();
 
@@ -68,7 +68,7 @@ public class SegmentsMergerTests : IRowFileTest
 
         var fileResult = folder.SubPath("res.txt");
         var segments = new SegmentsMerger(fileResult, 100);
-        await segments.MergeSegments(file1, file2, file3);
+        await segments.MergeSegmentsAsync(new() { file1, file2, file3 });
 
         var resultRows = new FileReader(fileResult, 0).Read().ToList();
 
@@ -94,7 +94,7 @@ public class SegmentsMergerTests : IRowFileTest
 
         var fileResult = folder.SubPath("res.txt");
         var segments = new SegmentsMerger(fileResult, 100);
-        await segments.MergeSegments(file1, file2);
+        await segments.MergeSegmentsAsync(new() { file1, file2 });
 
         var resultRows = new FileReader(fileResult, 0).Read().ToList();
 
@@ -121,7 +121,7 @@ public class SegmentsMergerTests : IRowFileTest
 
         var fileResult = folder.SubPath("res.txt");
         var segments = new SegmentsMerger(fileResult, 100);
-        await segments.MergeSegments(file1, file2);
+        await segments.MergeSegmentsAsync(new() { file1, file2 });
 
         var resultRows = new FileReader(fileResult, 0).Read().ToList();
 

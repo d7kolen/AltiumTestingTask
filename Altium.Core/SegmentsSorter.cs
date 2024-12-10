@@ -19,7 +19,7 @@ public class SegmentsSorter
         _maxSegmentSize = maxSegmentSize;
     }
 
-    public async Task<List<string>> CreateSegments(IEnumerable<RowDto> rows)
+    public async Task<List<string>> CreateSegmentsAsync(IEnumerable<RowDto> rows)
     {
         var currentSegmentSize = 0;
         List<RowDto> segmentRows = new();
@@ -53,7 +53,17 @@ public class SegmentsSorter
     {
         segmentRows.Sort(_comparer);
 
-        var segmentFileName = Path.Combine(_folder, segmentNumber.ToString() + ".txt");
+        var folder = _folder;
+
+
+        var subfolderId = segmentNumber / 100;
+        if (subfolderId > 0)
+        {
+            folder = Path.Combine(_folder, subfolderId.ToString());
+            Directory.CreateDirectory(folder);
+        }
+
+        var segmentFileName = Path.Combine(folder, segmentNumber.ToString() + ".txt");
         using var writer = new FileWriter(segmentFileName);
         await writer.WriteRowsAsync(segmentRows);
 
