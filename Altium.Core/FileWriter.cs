@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Altium.Core
 {
-    public class FileGenerator
+    public class FileWriter
     {
         const int _fileBufferSize = 1_000_000;
         const int _maxNumber = 9_999;
@@ -16,12 +16,12 @@ namespace Altium.Core
 
         private readonly int _count;
 
-        public FileGenerator(int count)
+        public FileWriter(int count)
         {
             _count = count;
         }
 
-        public async Task NewFileAsync(string fileName)
+        public async Task CreateRandomFileAsync(string fileName)
         {
             await using var stream = new FileStream(fileName, FileMode.CreateNew, FileAccess.Write);
             await using var writer = new StreamWriter(stream, Encoding.UTF8, _fileBufferSize);

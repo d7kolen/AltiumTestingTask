@@ -2,6 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Altium.Tests;
@@ -16,8 +17,8 @@ public class ReadFileTests
 
         var file = folder.SubFile("1.txt");
 
-        var generator = new FileGenerator(1);
-        await generator.NewFileAsync(file);
+        var generator = new FileWriter(1);
+        await generator.CreateRandomFileAsync(file);
 
         File.Exists(file);
 
@@ -41,8 +42,8 @@ public class ReadFileTests
 
         var file = folder.SubFile("1.txt");
 
-        var generator = new FileGenerator(2);
-        await generator.NewFileAsync(file);
+        var generator = new FileWriter(2);
+        await generator.CreateRandomFileAsync(file);
 
         File.Exists(file);
 
@@ -55,12 +56,12 @@ public class ReadFileTests
     public async Task NewFile_Can_Be_Read()
     {
         var folder = TempFolder.Create();
-
         var file = folder.SubFile("1.txt");
 
-        var generator = new FileGenerator(2);
-        await generator.NewFileAsync(file);
+        await new FileWriter(2).CreateRandomFileAsync(file);
 
-        var reader = new FileReader(file);
+        var rows = new FileReader(file, 0).Read().ToList();
+
+        rows.Should().HaveCount(2);
     }
 }
