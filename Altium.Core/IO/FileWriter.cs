@@ -51,7 +51,7 @@ namespace Altium.Core
             await _writer.WriteLineAsync();
         }
 
-        private const string _alphabet = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        private const string _alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private int _alphabetLen = _alphabet.Length;
 
         private static string RandomString(Random random, string alphabet, int alphabetLen)

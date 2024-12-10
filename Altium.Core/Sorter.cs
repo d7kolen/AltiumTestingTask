@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -26,6 +27,16 @@ public class Sorter
         var segmentsFolder = Path.Combine(_tempFolder, "segments");
         var segments = await new SegmentsSorter(segmentsFolder, InitSegmentSize).CreateSegmentsAsync(inputRows);
 
+        if (segments.Count == 1)
+            File.Copy(segments[0], _resultFileName, true);
+        else
+            await MergeSegments(segments);
+
+        Directory.Delete(_tempFolder, true);
+    }
+
+    private async Task MergeSegments(List<string> segments)
+    {
         var mergedFolder = Path.Combine(_tempFolder, "merged");
         Directory.CreateDirectory(mergedFolder);
 

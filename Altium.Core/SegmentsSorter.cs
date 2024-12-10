@@ -55,7 +55,7 @@ public class SegmentsSorter
 
         var folder = _folder;
 
-
+        //Protecting the file system from a huge amount of files in one directory
         var subfolderId = segmentNumber / 100;
         if (subfolderId > 0)
         {
