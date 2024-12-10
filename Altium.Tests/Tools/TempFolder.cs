@@ -7,7 +7,7 @@ namespace Altium.Tests;
 
 class TempFolder
 {
-    public string Path { get; private set; } = null!;
+    public string Folder { get; private set; } = null!;
 
     public static TempFolder Create()
     {
@@ -22,7 +22,7 @@ class TempFolder
 
         return new TempFolder()
         {
-            Path = path
+            Folder = path
         };
     }
 
@@ -39,37 +39,46 @@ class TempFolder
             if (_cleaned == null)
                 return;
 
-            foreach (var t in Directory.GetDirectories(TempFolderLocation()))
-                try
-                {
-                    var tName = System.IO.Path.GetFileName(t);
-                    if (
-                        !(
-                            DateTime.TryParseExact(tName, "yyyy-MM-dd_hh-mm-ss", CultureInfo.CurrentCulture,
-                                DateTimeStyles.None, out var tDate)
-                            &&
-                            tDate.AddHours(1) < DateTime.UtcNow
-                        ))
-                    {
-                        continue;
-                    }
+            Directory.CreateDirectory(TempFolderLocation());
 
-                    Directory.Delete(t, true);
-                }
-                //the deletion is not critical - there is a test cleaning only
-                catch (IOException)
-                {
-                }
-                catch (UnauthorizedAccessException)
-                {
-                }
+            foreach (var t in Directory.GetDirectories(TempFolderLocation()))
+                DeleteOverdatedFolder(t);
 
             _cleaned = null;
         }
     }
 
+    private static void DeleteOverdatedFolder(string t)
+    {
+        try
+        {
+            var tName = Path.GetFileName(t);
+            if (
+                DateTime.TryParseExact(tName, "yyyy-MM-dd_hh-mm-ss", CultureInfo.CurrentCulture, DateTimeStyles.None, out var tDate)
+                &&
+                tDate.AddHours(1) < DateTime.UtcNow
+                )
+            {
+                Directory.Delete(t, true);
+            }
+        }
+        //the deletion is not critical - there is a test cleaning only
+        catch (IOException)
+        {
+        }
+        catch (UnauthorizedAccessException)
+        {
+        }
+    }
+
     private static string TempFolderLocation()
     {
-        return System.IO.Path.Combine(Assembly.GetExecutingAssembly().Location, "temp");
+        var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+        return Path.Combine(assemblyDir, "temp");
+    }
+
+    public string SubFile(string name)
+    {
+        return Path.Combine(Folder, name);
     }
 }
