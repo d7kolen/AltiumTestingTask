@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 
 namespace Altium.Core;
 
@@ -14,6 +16,22 @@ public class FileReader
     {
         _fileName = fileName;
         _bufferSize = bufferSize;
+    }
+
+    public async IAsyncEnumerable<RowDto> ReadAsync(int prereadingBuffer)
+    {
+        var channel = Channel.CreateBounded<RowDto>(prereadingBuffer);
+
+        var writer = Task.Run(async () =>
+        {
+            foreach (var t in Read())
+                await channel.Writer.WriteAsync(t);
+
+            channel.Writer.Complete();
+        });
+
+        await foreach (var t in channel.Reader.ReadAllAsync())
+            yield return t;
     }
 
     public IEnumerable<RowDto> Read()

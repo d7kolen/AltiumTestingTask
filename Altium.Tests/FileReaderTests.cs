@@ -1,6 +1,7 @@
 ﻿using Altium.Core;
 using FluentAssertions;
 using NUnit.Framework;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -67,5 +68,25 @@ public class FileReaderTests : IRowFileTest
 
         rows0.Current.Number.Should().Be(rows1.Current.Number);
         rows0.Current.StringValue.Should().Be(rows1.Current.StringValue);
+    }
+
+    [Test]
+    public async Task ReadAsyncRow()
+    {
+        var folder = TempFolder.Create();
+        var file = folder.SubPath("1.txt");
+
+        await this.AppendLineToFile(file, "5. abc");
+        await this.AppendLineToFile(file, "6. abc");
+        await this.AppendLineToFile(file, "7. abc");
+
+        var rows = new List<RowDto>();
+        await foreach (var t in new FileReader(file, 0).ReadAsync(10))
+            rows.Add(t);
+
+        rows.Should().HaveCount(3);
+        rows[0].Number.Should().Be(5);
+        rows[1].Number.Should().Be(6);
+        rows[2].Number.Should().Be(7);
     }
 }

@@ -1,13 +1,10 @@
-﻿using Serilog;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Altium.Core;
 
 class RowDtoBTree
 {
-    public IEnumerator<RowDto> Current { get; set; }
+    public IAsyncEnumerator<RowDto> Current { get; set; }
 
     public RowDtoBTree? Left { get; set; }
     public RowDtoBTree? Right { get; set; }
@@ -20,7 +17,7 @@ class RowDtoBTree
         return t;
     }
 
-    public static RowDtoBTree Add(RowDtoBTree? tree, IEnumerator<RowDto> item, IComparer<RowDto> comparer)
+    public static RowDtoBTree Add(RowDtoBTree? tree, IAsyncEnumerator<RowDto> item, IComparer<RowDto> comparer)
     {
         if (tree == null)
         {

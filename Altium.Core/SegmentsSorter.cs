@@ -25,7 +25,7 @@ public class SegmentsSorter
         _logger = logger;
     }
 
-    public async Task<List<string>> CreateSegmentsAsync(IEnumerable<RowDto> rows)
+    public async Task<List<string>> CreateSegmentsAsync(IAsyncEnumerable<RowDto> rows)
     {
         var currentSegmentSize = 0;
         List<RowDto> segmentRows = new();
@@ -40,7 +40,7 @@ public class SegmentsSorter
 
         var flushTasks = new List<Task>();
 
-        foreach (var t in rows)
+        await foreach (var t in rows)
         {
             currentSegmentSize += sizeof(int) + t.StringValue.Length;
             segmentRows.Add(t);

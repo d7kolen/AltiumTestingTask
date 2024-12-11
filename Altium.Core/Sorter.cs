@@ -23,7 +23,7 @@ public class Sorter
 
     public async Task SortAsync(string inputFileName, string resultFileName)
     {
-        var inputRows = new FileReader(inputFileName, ReadingBufferSize).Read();
+        var inputRows = new FileReader(inputFileName, ReadingBufferSize).ReadAsync(1000);
 
         var segmentsSorter = new SegmentsSorter(Path.Combine(_tempFolder, "segments"), InitSegmentSize, 30, _logger);
         var segments = await segmentsSorter.CreateSegmentsAsync(inputRows);
@@ -52,7 +52,7 @@ public class Sorter
                 resultFile = Path.Combine(mergedFolder, $"{++mergeCounter}.txt");
 
             await
-                new BTreeSegmentsMerger(resultFile, ReadingBufferSize, _logger)
+                new BTreeSegmentsMerger(resultFile, ReadingBufferSize, 10, _logger)
                 .MergeSegmentsAsync(toMerge);
 
             segments.RemoveRange(0, toMerge.Count);
