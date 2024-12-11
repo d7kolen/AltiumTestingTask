@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+﻿
+using System.Collections.Generic;
 
 namespace Altium.Core;
 
-class RowDtoBTree
+class RowDtoBTree_AsyncRead
 {
-    public IEnumerator<RowDto> Current { get; set; }
+    public IAsyncEnumerator<RowDto> Current { get; set; }
 
-    public RowDtoBTree? Left { get; set; }
-    public RowDtoBTree? Right { get; set; }
+    public RowDtoBTree_AsyncRead? Left { get; set; }
+    public RowDtoBTree_AsyncRead? Right { get; set; }
 
-    public RowDtoBTree Min()
+    public RowDtoBTree_AsyncRead Min()
     {
         var t = this;
         while (t.Left != null)
@@ -17,11 +18,11 @@ class RowDtoBTree
         return t;
     }
 
-    public static RowDtoBTree Add(RowDtoBTree? tree, IEnumerator<RowDto> item, IComparer<RowDto> comparer)
+    public static RowDtoBTree_AsyncRead Add(RowDtoBTree_AsyncRead? tree, IAsyncEnumerator<RowDto> item, IComparer<RowDto> comparer)
     {
         if (tree == null)
         {
-            return new RowDtoBTree()
+            return new RowDtoBTree_AsyncRead()
             {
                 Current = item
             };
@@ -36,7 +37,7 @@ class RowDtoBTree
             {
                 if (t.Left == null)
                 {
-                    t.Left = new RowDtoBTree() { Current = item };
+                    t.Left = new RowDtoBTree_AsyncRead() { Current = item };
                     return tree;
                 }
                 else
@@ -46,7 +47,7 @@ class RowDtoBTree
             {
                 if (t.Right == null)
                 {
-                    t.Right = new RowDtoBTree() { Current = item };
+                    t.Right = new RowDtoBTree_AsyncRead() { Current = item };
                     return tree;
                 }
                 else
@@ -55,7 +56,7 @@ class RowDtoBTree
         }
     }
 
-    public static RowDtoBTree RemoveMin(RowDtoBTree? tree)
+    public static RowDtoBTree_AsyncRead RemoveMin(RowDtoBTree_AsyncRead? tree)
     {
         if (tree == null)
             return null;
