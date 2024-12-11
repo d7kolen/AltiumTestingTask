@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Altium.Core;
 
-public class BTreeSegmentsMerger
+public class SegmentsMerger_BTree
 {
     private readonly RowDtoComparer _comparer = new();
 
@@ -16,7 +16,7 @@ public class BTreeSegmentsMerger
     /// <summary>
     /// readingBufferSize defines a summary size of buffers for all reading files
     /// </summary>
-    public BTreeSegmentsMerger(string fileResult, int readingBufferSize, ILogger logger)
+    public SegmentsMerger_BTree(string fileResult, int readingBufferSize, ILogger logger)
     {
         _fileResult = fileResult;
         _readingBufferSize = readingBufferSize;
