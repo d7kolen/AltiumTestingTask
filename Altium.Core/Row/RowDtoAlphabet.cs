@@ -16,7 +16,6 @@ namespace Altium.Core
             int index = 0;
             foreach (var t in _alphabet)
                 _alphabetIndexes[t] = index++;
-
         }
 
         public string RandomString(Random random, int minStringSize, int maxStringSize)
