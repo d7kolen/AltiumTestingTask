@@ -6,10 +6,10 @@ class RowDtoComparer : IComparer<RowDto>
 {
     public int Compare(RowDto x, RowDto y)
     {
-        if (x.PrimaryWeight != null && y.PrimaryWeight != null &&
-            x.PrimaryWeight != y.PrimaryWeight)
+        if (x.StringValueWeight != null && y.StringValueWeight != null &&
+            x.StringValueWeight != y.StringValueWeight)
         {
-            return x.PrimaryWeight < y.PrimaryWeight ? -1 : 1;
+            return x.StringValueWeight < y.StringValueWeight ? -1 : 1;
         }
 
         var result = x.StringValue.CompareTo(y.StringValue);

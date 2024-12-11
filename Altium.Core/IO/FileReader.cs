@@ -32,7 +32,7 @@ public class FileReader
             {
                 Number = int.Parse(parts[0]),
                 StringValue = parts[1],
-                PrimaryWeight = _alphabet.StringValueWeight(parts[1])
+                StringValueWeight = _alphabet.StringValueWeight(parts[1])
             };
         }
     }

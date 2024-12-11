@@ -9,11 +9,14 @@ namespace Altium.Core
         private const string _alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private Dictionary<char, int> _alphabetIndexes = new();
 
+        private const int _weightAnalysisLevel = 4;
+
         public RowDtoAlphabet()
         {
             int index = 0;
             foreach (var t in _alphabet)
                 _alphabetIndexes[t] = index++;
+
         }
 
         public string RandomString(Random random, int minStringSize, int maxStringSize)
@@ -29,19 +32,12 @@ namespace Altium.Core
         {
             long sum = 0;
 
-            foreach (var t in stringValue)
+            for (int i = 0; i < _weightAnalysisLevel; i++)
             {
-                var previousSum = sum;
-
                 sum *= _alphabet.Length;
 
-                if (!_alphabetIndexes.TryGetValue(t, out var index))
-                    return null;
-
-                sum += index;
-
-                if (sum < previousSum)
-                    return previousSum;
+                if (stringValue.Length > i && _alphabetIndexes.TryGetValue(stringValue[i], out var index))
+                    sum += index;
             }
 
             return sum;

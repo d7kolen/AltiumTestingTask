@@ -15,7 +15,7 @@ namespace Altium.Core
         const int _maxStringSize = 25;
 
         private StreamWriter _writer;
-        private RowDtoAlphabet _alphabet = new RowDtoAlphabet();
+        private RowDtoAlphabet _alphabet = new();
 
         public FileWriter(string fileName)
         {
