@@ -1,6 +1,7 @@
 ﻿using Altium.Core;
 using FluentAssertions;
 using NUnit.Framework;
+using Serilog;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,11 +11,23 @@ namespace Altium.Tests;
 [TestFixture]
 public class SegmentsSorterTests
 {
+    #region Init
+
+    private TempFolder _folder = null!;
+    private ILogger _logger = null!;
+
+    [SetUp]
+    public void Init()
+    {
+        _folder = TempFolder.Create();
+        _logger = new LoggerConfiguration().CreateLogger();
+    }
+
+    #endregion
+
     [Test]
     public async Task SegmentSorting()
     {
-        var folder = TempFolder.Create();
-
         var rows = new List<RowDto>
         {
             new RowDto(7, "abc"),
@@ -22,7 +35,7 @@ public class SegmentsSorterTests
             new RowDto(5, "abc")
         };
 
-        var segments = new SegmentsSorter(folder.SubPath("segments"), 8);
+        var segments = new SegmentsSorter(_folder.SubPath("segments"), 8, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(2);
@@ -42,8 +55,6 @@ public class SegmentsSorterTests
     [Test]
     public async Task SegmentSorting_BigSegmentSize()
     {
-        var folder = TempFolder.Create();
-
         var rows = new List<RowDto>
         {
             new RowDto(7, "abc"),
@@ -51,7 +62,7 @@ public class SegmentsSorterTests
             new RowDto(5, "abc")
         };
 
-        var segments = new SegmentsSorter(folder.SubPath("segments"), 100);
+        var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(1);
@@ -67,15 +78,13 @@ public class SegmentsSorterTests
     [Test]
     public async Task SegmentSorting_SortingCriterias()
     {
-        var folder = TempFolder.Create();
-
         var rows = new List<RowDto>
         {
             new RowDto(5, "def"),
             new RowDto(5, "abc")
         };
 
-        var segments = new SegmentsSorter(folder.SubPath("segments"), 100);
+        var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(1);
@@ -90,15 +99,13 @@ public class SegmentsSorterTests
     [Test]
     public async Task SegmentSorting_SortingCriterias_1()
     {
-        var folder = TempFolder.Create();
-
         var rows = new List<RowDto>
         {
             new RowDto(5, "def"),
             new RowDto(6, "abc") //StringValue has sorting priority
         };
 
-        var segments = new SegmentsSorter(folder.SubPath("segments"), 100);
+        var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(1);

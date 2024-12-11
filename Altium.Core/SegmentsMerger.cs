@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Serilog;
+using Serilog.Core;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,18 +12,22 @@ public class SegmentsMerger
 
     private readonly string _fileResult;
     private readonly int _readingBufferSize;
+    private readonly ILogger _logger;
 
     /// <summary>
     /// readingBufferSize defines a summary size of buffers for all reading files
     /// </summary>
-    public SegmentsMerger(string fileResult, int readingBufferSize)
+    public SegmentsMerger(string fileResult, int readingBufferSize, ILogger logger)
     {
         _fileResult = fileResult;
         _readingBufferSize = readingBufferSize;
+        _logger = logger;
     }
 
     public async Task MergeSegmentsAsync(List<string> files)
     {
+        _logger.Information("Start merging {count} files", files.Count);
+
         var bufferSize = _readingBufferSize / files.Count;
 
         var fullInputList = new List<IEnumerator<RowDto>>();
@@ -33,7 +39,8 @@ public class SegmentsMerger
         {
             CreateInputStreams(files, bufferSize, fullInputList);
 
-            actualList = fullInputList.Where(x => x.MoveNext()).ToList();
+            actualList = fullInputList.Where(x => x.MoveNext()).ToList();            
+
             while (actualList.Any())
             {
                 var tItem = actualList.Select(x => x.Current).Min(_comparer);
@@ -47,6 +54,8 @@ public class SegmentsMerger
             foreach (var t in fullInputList)
                 t.Dispose();
         }
+
+        _logger.Information("Finish merging {count} files", files.Count);
     }
 
     void MoveNextItemList(List<IEnumerator<RowDto>> actualList, RowDto tItem)
