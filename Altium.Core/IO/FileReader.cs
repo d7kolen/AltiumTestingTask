@@ -8,6 +8,7 @@ public class FileReader
 {
     private readonly string _fileName;
     private readonly int _bufferSize;
+    private readonly RowDtoAlphabet _alphabet = new();
 
     public FileReader(string fileName, int bufferSize)
     {
@@ -30,7 +31,8 @@ public class FileReader
             yield return new RowDto()
             {
                 Number = int.Parse(parts[0]),
-                StringValue = parts[1]
+                StringValue = parts[1],
+                PrimaryWeight = _alphabet.StringValueWeight(parts[1])
             };
         }
     }

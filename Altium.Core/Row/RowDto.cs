@@ -4,6 +4,7 @@ public class RowDto
 {
     public int Number { get; set; }
     public string StringValue { get; set; }
+    public long? PrimaryWeight { get; set; }
 
     public RowDto() { }
 

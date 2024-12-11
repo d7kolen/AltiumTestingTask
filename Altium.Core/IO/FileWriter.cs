@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,6 +15,7 @@ namespace Altium.Core
         const int _maxStringSize = 25;
 
         private StreamWriter _writer;
+        private RowDtoAlphabet _alphabet = new RowDtoAlphabet();
 
         public FileWriter(string fileName)
         {
@@ -33,7 +33,7 @@ namespace Altium.Core
             {
                 await WriteRowAsync(
                     random.Next(_maxNumber),
-                    RandomString(random, _alphabet, _alphabetLen));
+                    _alphabet.RandomString(random, _minStringSize, _maxStringSize));
             }
         }
 
@@ -49,18 +49,6 @@ namespace Altium.Core
             await _writer.WriteAsync(". ");
             await _writer.WriteAsync(stringValue);
             await _writer.WriteLineAsync();
-        }
-
-        private const string _alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private int _alphabetLen = _alphabet.Length;
-
-        private static string RandomString(Random random, string alphabet, int alphabetLen)
-        {
-            var symbols = Enumerable
-                .Repeat("", random.Next(_minStringSize, _maxStringSize))
-                .Select(_ => alphabet[random.Next(alphabetLen)]);
-
-            return string.Concat(symbols);
         }
 
         public void Dispose()
