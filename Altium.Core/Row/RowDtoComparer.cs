@@ -19,13 +19,3 @@ class RowDtoComparer : IComparer<RowDto>
         return x.Number.CompareTo(y.Number);
     }
 }
-
-class EnumeratorRowDtoComparer : IComparer<IEnumerator<RowDto>>
-{
-    private readonly IComparer<RowDto> _inner = new RowDtoComparer();
-
-    public int Compare(IEnumerator<RowDto> x, IEnumerator<RowDto> y)
-    {
-        return _inner.Compare(x.Current, y.Current);
-    }
-}
