@@ -1,6 +1,7 @@
 ﻿using Serilog;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Altium.Core;
@@ -10,15 +11,17 @@ public class SegmentsSorter
     private readonly RowDtoComparer _comparer = new();
     private readonly string _folder;
     private readonly int _maxSegmentSize;
+    private readonly int _parallelSorting;
     private readonly ILogger _logger;
 
     /// <summary>
     /// segmentSize is approximately segment size. Usually, we will have a bigger segment on one additional block.
     /// </summary>
-    public SegmentsSorter(string folder, int maxSegmentSize, ILogger logger)
+    public SegmentsSorter(string folder, int maxSegmentSize, int parallelSorting, ILogger logger)
     {
         _folder = folder;
         _maxSegmentSize = maxSegmentSize;
+        _parallelSorting = parallelSorting <= 0 ? 1 : parallelSorting;
         _logger = logger;
     }
 
@@ -28,11 +31,14 @@ public class SegmentsSorter
         List<RowDto> segmentRows = new();
 
         List<string> result = new();
+        int segmentIndex = 0;
 
         if (!Directory.Exists(_folder))
             Directory.CreateDirectory(_folder);
 
         _logger.Information("Start reading segments");
+
+        var flushTasks = new List<Task>();
 
         foreach (var t in rows)
         {
@@ -41,17 +47,22 @@ public class SegmentsSorter
 
             if (currentSegmentSize > _maxSegmentSize)
             {
-                _logger.Information("Segment {number} prepared", result.Count);
+                _logger.Information("Segment {number} prepared", segmentIndex);
 
-                var segmentFile = await FlushSegment(segmentRows, result.Count);
-
-                segmentRows.Clear();
+                var tSegmentRows = segmentRows;
+                segmentRows = new();
                 currentSegmentSize = 0;
-                result.Add(segmentFile);
+                var tSegmentIndex = segmentIndex++;
+
+                flushTasks = await AwaitEmptyFlushSlot(flushTasks);
+                flushTasks.Add(StartFlushSegmentTask(tSegmentRows, result, tSegmentIndex));
             }
         }
 
-        result.Add(await FlushSegment(segmentRows, result.Count));
+        flushTasks = await AwaitEmptyFlushSlot(flushTasks);
+        flushTasks.Add(StartFlushSegmentTask(segmentRows, result, segmentIndex));
+
+        await Task.WhenAll(flushTasks);
 
         return result;
     }
@@ -81,5 +92,25 @@ public class SegmentsSorter
         _logger.Information("Wrote segment {number} to file", segmentNumber);
 
         return segmentFileName;
+    }
+
+    private async Task StartFlushSegmentTask(List<RowDto> segmentRows, List<string> result, int segmentIndex)
+    {
+        await Task.Yield();
+
+        var segmentFile = await FlushSegment(segmentRows, segmentIndex);
+        lock (result)
+            result.Add(segmentFile);
+    }
+
+    private async Task<List<Task>> AwaitEmptyFlushSlot(List<Task> flashTasks)
+    {
+        while (flashTasks.Count >= _parallelSorting)
+        {
+            await Task.WhenAny(flashTasks);
+            flashTasks = flashTasks.Where(x => !x.IsCompleted).ToList();
+        }
+
+        return flashTasks;
     }
 }

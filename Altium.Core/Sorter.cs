@@ -25,7 +25,7 @@ public class Sorter
     {
         var inputRows = new FileReader(inputFileName, ReadingBufferSize).Read();
 
-        var segmentsSorter = new SegmentsSorter(Path.Combine(_tempFolder, "segments"), InitSegmentSize, _logger);
+        var segmentsSorter = new SegmentsSorter(Path.Combine(_tempFolder, "segments"), InitSegmentSize, 30, _logger);
         var segments = await segmentsSorter.CreateSegmentsAsync(inputRows);
 
         if (segments.Count == 1)
@@ -51,9 +51,8 @@ public class Sorter
             if (segments.Count != toMerge.Count)
                 resultFile = Path.Combine(mergedFolder, $"{++mergeCounter}.txt");
 
-            await 
+            await
                 new BTreeSegmentsMerger(resultFile, ReadingBufferSize, _logger)
-                //new SegmentsMerger1(resultFile, ReadingBufferSize, _logger)
                 .MergeSegmentsAsync(toMerge);
 
             segments.RemoveRange(0, toMerge.Count);

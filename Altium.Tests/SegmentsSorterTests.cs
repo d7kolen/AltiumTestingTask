@@ -35,7 +35,7 @@ public class SegmentsSorterTests
             new RowDto(5, "abc")
         };
 
-        var segments = new SegmentsSorter(_folder.SubPath("segments"), 8, _logger);
+        var segments = new SegmentsSorter(_folder.SubPath("segments"), 8, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(2);
@@ -62,7 +62,7 @@ public class SegmentsSorterTests
             new RowDto(5, "abc")
         };
 
-        var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, _logger);
+        var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(1);
@@ -84,7 +84,7 @@ public class SegmentsSorterTests
             new RowDto(5, "abc")
         };
 
-        var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, _logger);
+        var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(1);
@@ -105,7 +105,7 @@ public class SegmentsSorterTests
             new RowDto(6, "abc") //StringValue has sorting priority
         };
 
-        var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, _logger);
+        var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(1);
