@@ -40,7 +40,7 @@ namespace Altium.Core
         public async Task WriteRowsAsync(List<RowDto> rows)
         {
             foreach (var t in rows)
-                await WriteRowAsync(t.Number, t.StringValue);
+                _writer.WriteLine(t.OriginLine);
         }
 
         private async Task WriteRowAsync(int number, string stringValue)

@@ -30,6 +30,7 @@ public class FileReader
 
             yield return new RowDto()
             {
+                OriginLine = line,
                 Number = int.Parse(parts[0]),
                 StringValue = parts[1],
                 StringValueWeight = _alphabet.StringValueWeight(parts[1])

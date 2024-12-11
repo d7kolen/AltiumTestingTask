@@ -2,6 +2,7 @@
 
 public class RowDto
 {
+    public string OriginLine { get; set; }
     public int Number { get; set; }
 
     public string StringValue { get; set; }
@@ -13,5 +14,6 @@ public class RowDto
     {
         Number = number;
         StringValue = stringValue;
+        OriginLine = $"{number}. {stringValue}";
     }
 }
