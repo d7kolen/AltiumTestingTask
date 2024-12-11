@@ -136,4 +136,24 @@ public class SegmentsMergerTests : IRowFileTest
         resultRows[2].Number.Should().Be(6);
         resultRows[3].Number.Should().Be(7);
     }
+
+    [Test]
+    public async Task MergeSegments_Duplicates()
+    {
+        var file1 = _folder.SubPath("1.txt");
+        var file2 = _folder.SubPath("2.txt");
+
+        await this.AppendLineToFile(file1, "6. abc");
+        await this.AppendLineToFile(file2, "6. abc");
+
+        var fileResult = _folder.SubPath("res.txt");
+        var segments = new SegmentsMerger(fileResult, 100, _logger);
+        await segments.MergeSegmentsAsync(new() { file1, file2 });
+
+        var resultRows = new FileReader(fileResult, 0).Read().ToList();
+
+        resultRows.Should().HaveCount(2);
+        resultRows[0].Number.Should().Be(6);
+        resultRows[1].Number.Should().Be(6);
+    }
 }

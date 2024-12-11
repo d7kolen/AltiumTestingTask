@@ -1,5 +1,4 @@
 ﻿using Serilog;
-using Serilog.Core;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,7 +7,7 @@ namespace Altium.Core;
 
 public class SegmentsMerger
 {
-    private readonly RowDtoComparer _comparer = new();
+    private readonly EnumeratorRowDtoComparer _comparer = new();
 
     private readonly string _fileResult;
     private readonly int _readingBufferSize;
@@ -31,7 +30,6 @@ public class SegmentsMerger
         var bufferSize = _readingBufferSize / files.Count;
 
         var fullInputList = new List<IEnumerator<RowDto>>();
-        var actualList = new List<IEnumerator<RowDto>>();
 
         using var writer = new FileWriter(_fileResult);
 
@@ -39,14 +37,14 @@ public class SegmentsMerger
         {
             CreateInputStreams(files, bufferSize, fullInputList);
 
-            actualList = fullInputList.Where(x => x.MoveNext()).ToList();            
+            var acutualList = fullInputList.Where(x => x.MoveNext()).ToList();
 
-            while (actualList.Any())
+            while (acutualList.Any())
             {
-                var tItem = actualList.Select(x => x.Current).Min(_comparer);
-                await writer.WriteRowsAsync(new() { tItem });
+                var min = acutualList.Min(_comparer);
+                await writer.WriteRowsAsync(new() { min.Current });
 
-                MoveNextItemList(actualList, tItem);
+                MoveNext(acutualList, min);
             }
         }
         finally
@@ -58,11 +56,10 @@ public class SegmentsMerger
         _logger.Information("Finish merging {count} files", files.Count);
     }
 
-    void MoveNextItemList(List<IEnumerator<RowDto>> actualList, RowDto tItem)
+    void MoveNext(List<IEnumerator<RowDto>> list, IEnumerator<RowDto> minItem)
     {
-        var tList = actualList.First(x => x.Current == tItem);
-        if (!tList.MoveNext())
-            actualList.Remove(tList);
+        if (!minItem.MoveNext())
+            list.Remove(minItem);
     }
 
     void CreateInputStreams(List<string> files, int bufferSize, List<IEnumerator<RowDto>> fullList)
@@ -72,5 +69,48 @@ public class SegmentsMerger
             var tInput = new FileReader(t, bufferSize).Read().GetEnumerator();
             fullList.Add(tInput);
         }
+    }
+}
+
+class BTree
+{
+    public IEnumerator<RowDto> Current { get; set; }
+
+    public BTree? Left { get; set; }
+    public BTree? Right { get; set; }
+
+    public BTree Min()
+    {
+        var t = this;
+        while (t.Left != null)
+            t = t.Left;
+        return t;
+    }
+
+    public void Add(IEnumerator<RowDto> item, IComparer<RowDto> comparer)
+    {
+        if (comparer.Compare(Current.Current, item.Current) < 0)
+        {
+            if (Left == null)
+                Left = new BTree() { Current = item };
+            else
+                Left.Add(item, comparer);
+        }
+        else
+        {
+            if (Right == null)
+                Right = new BTree() { Current = item };
+            else
+                Right.Add(item, comparer);
+        }
+    }
+
+    public BTree RemoveMin()
+    {
+        if (Left == null)
+            return Right;
+
+        Left = Left.RemoveMin();
+        return this;
     }
 }

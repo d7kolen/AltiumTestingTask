@@ -51,7 +51,7 @@ public class Sorter
             if (segments.Count != toMerge.Count)
                 resultFile = Path.Combine(mergedFolder, $"{++mergeCounter}.txt");
 
-            await new SegmentsMerger(resultFile, ReadingBufferSize, _logger).MergeSegmentsAsync(toMerge);
+            await new SegmentsMerger(resultFile, 1_000_000 * toMerge.Count, _logger).MergeSegmentsAsync(toMerge);
 
             segments.RemoveRange(0, toMerge.Count);
             foreach (var t in toMerge)
