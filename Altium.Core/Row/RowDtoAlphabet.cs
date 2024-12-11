@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Altium.Core
 {
     public class RowDtoAlphabet
     {
-        private const string _alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        private const string _alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         private Dictionary<char, int> _alphabetIndexes = new();
 
         private const int _weightAnalysisLevel = 4;
@@ -22,9 +21,10 @@ namespace Altium.Core
 
         public string RandomString(Random random, int minStringSize, int maxStringSize)
         {
-            var symbols = Enumerable
-                .Repeat("", random.Next(minStringSize, maxStringSize))
-                .Select(_ => _alphabet[random.Next(_alphabet.Length)]);
+            var lenght = random.Next(minStringSize, maxStringSize);
+
+            var symbols = Enumerable.Repeat("", lenght)
+                .Select(_ => _alphabet[random.Next() % _alphabet.Length]);
 
             return string.Concat(symbols);
         }

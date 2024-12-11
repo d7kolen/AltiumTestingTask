@@ -27,7 +27,7 @@ namespace Altium.Core
 
         public async Task WriteRandomRowsAsync(int count)
         {
-            var random = new Random();
+            var random = new Random(new Guid().GetHashCode());
 
             for (int i = 0; i < count; i++)
             {
