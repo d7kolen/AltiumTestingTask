@@ -52,7 +52,7 @@ public class Sorter
                 resultFile = Path.Combine(mergedFolder, $"{++mergeCounter}.txt");
 
             await 
-                new SegmentsMerger(resultFile, ReadingBufferSize, _logger)
+                new BTreeSegmentsMerger(resultFile, ReadingBufferSize, _logger)
                 //new SegmentsMerger1(resultFile, ReadingBufferSize, _logger)
                 .MergeSegmentsAsync(toMerge);
 

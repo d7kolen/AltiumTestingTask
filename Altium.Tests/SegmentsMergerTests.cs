@@ -34,7 +34,7 @@ public class SegmentsMergerTests : IRowFileTest
         await this.AppendLineToFile(file2, "6. abc");
 
         var fileResult = _folder.SubPath("res.txt");
-        var segments = new SegmentsMerger(fileResult, 100, _logger);
+        var segments = new BTreeSegmentsMerger(fileResult, 100, _logger);
         await segments.MergeSegmentsAsync(new() { file1, file2 });
 
         var resultRows = new FileReader(fileResult, 0).Read().ToList();
@@ -54,7 +54,7 @@ public class SegmentsMergerTests : IRowFileTest
         await this.AppendLineToFile(file2, "6. abc");
 
         var fileResult = _folder.SubPath("res.txt");
-        var segments = new SegmentsMerger(fileResult, 100, _logger);
+        var segments = new BTreeSegmentsMerger(fileResult, 100, _logger);
         await segments.MergeSegmentsAsync(new() { file2, file1 }); //other file order
 
         var resultRows = new FileReader(fileResult, 0).Read().ToList();
@@ -76,7 +76,7 @@ public class SegmentsMergerTests : IRowFileTest
         await this.AppendLineToFile(file3, "7. abc");
 
         var fileResult = _folder.SubPath("res.txt");
-        var segments = new SegmentsMerger(fileResult, 100, _logger);
+        var segments = new BTreeSegmentsMerger(fileResult, 100, _logger);
         await segments.MergeSegmentsAsync(new() { file1, file2, file3 });
 
         var resultRows = new FileReader(fileResult, 0).Read().ToList();
@@ -100,7 +100,7 @@ public class SegmentsMergerTests : IRowFileTest
         await this.AppendLineToFile(file2, "7. abc");
 
         var fileResult = _folder.SubPath("res.txt");
-        var segments = new SegmentsMerger(fileResult, 100, _logger);
+        var segments = new BTreeSegmentsMerger(fileResult, 100, _logger);
         await segments.MergeSegmentsAsync(new() { file1, file2 });
 
         var resultRows = new FileReader(fileResult, 0).Read().ToList();
@@ -125,7 +125,7 @@ public class SegmentsMergerTests : IRowFileTest
         await this.AppendLineToFile(file2, "7. abc");
 
         var fileResult = _folder.SubPath("res.txt");
-        var segments = new SegmentsMerger(fileResult, 100, _logger);
+        var segments = new BTreeSegmentsMerger(fileResult, 100, _logger);
         await segments.MergeSegmentsAsync(new() { file1, file2 });
 
         var resultRows = new FileReader(fileResult, 0).Read().ToList();
@@ -147,7 +147,7 @@ public class SegmentsMergerTests : IRowFileTest
         await this.AppendLineToFile(file2, "6. abc");
 
         var fileResult = _folder.SubPath("res.txt");
-        var segments = new SegmentsMerger(fileResult, 100, _logger);
+        var segments = new BTreeSegmentsMerger(fileResult, 100, _logger);
         await segments.MergeSegmentsAsync(new() { file1, file2 });
 
         var resultRows = new FileReader(fileResult, 0).Read().ToList();

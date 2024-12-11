@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Altium.Core;
 
-public class SegmentsMerger1
+public class DirectMininumSegmentsMerger
 {
     private readonly EnumeratorRowDtoComparer _comparer = new();
 
@@ -16,7 +16,7 @@ public class SegmentsMerger1
     /// <summary>
     /// readingBufferSize defines a summary size of buffers for all reading files
     /// </summary>
-    public SegmentsMerger1(string fileResult, int readingBufferSize, ILogger logger)
+    public DirectMininumSegmentsMerger(string fileResult, int readingBufferSize, ILogger logger)
     {
         _fileResult = fileResult;
         _readingBufferSize = readingBufferSize;
