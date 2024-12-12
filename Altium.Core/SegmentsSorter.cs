@@ -109,7 +109,10 @@ public class SegmentsSorter
         flashTasks = flashTasks.Where(x => !x.IsCompleted).ToList();
 
         while (flashTasks.Count >= _parallelSorting)
+        {
             await Task.WhenAny(flashTasks);
+            flashTasks = flashTasks.Where(x => !x.IsCompleted).ToList();
+        }
 
         return flashTasks;
     }
