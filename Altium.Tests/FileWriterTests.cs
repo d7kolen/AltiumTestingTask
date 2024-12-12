@@ -28,10 +28,12 @@ public class ReadFileTests
     [Test]
     public async Task CreateRandomFile()
     {
+        await Task.Yield();
+
         var file = _folder.SubPath("1.txt");
 
         using (var generator = new FileWriter(file))
-            await generator.WriteRandomRowsAsync(1, _logger);
+            generator.WriteRandomRows(1, _logger);
 
         File.Exists(file);
 
@@ -51,10 +53,12 @@ public class ReadFileTests
     [Test]
     public async Task CreateRandomFile_SeveralLines()
     {
+        await Task.Yield();
+
         var file = _folder.SubPath("1.txt");
 
         using (var writer = new FileWriter(file))
-            await writer.WriteRandomRowsAsync(2, _logger);
+            writer.WriteRandomRows(2, _logger);
 
         File.Exists(file);
 
@@ -66,10 +70,12 @@ public class ReadFileTests
     [Test]
     public async Task CreateRandomFile_Can_Be_Read()
     {
+        await Task.Yield();
+
         var file = _folder.SubPath("1.txt");
 
         using (var writer = new FileWriter(file))
-            await writer.WriteRandomRowsAsync(2, _logger);
+            writer.WriteRandomRows(2, _logger);
 
         var rows = new FileReader(file, 0).Read().ToList();
 

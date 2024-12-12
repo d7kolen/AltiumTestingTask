@@ -67,7 +67,7 @@ public class SegmentsSorter
         return result;
     }
 
-    private async Task<string> FlushSegment(List<RowDto> segmentRows, int segmentNumber)
+    private string FlushSegment(List<RowDto> segmentRows, int segmentNumber)
     {
         _logger.Information("Sorting segment {number}", segmentNumber);
 
@@ -87,7 +87,7 @@ public class SegmentsSorter
 
         var segmentFileName = Path.Combine(folder, segmentNumber.ToString() + ".txt");
         using var writer = new FileWriter(segmentFileName);
-        await writer.WriteRowsAsync(segmentRows);
+        writer.WriteRows(segmentRows);
 
         _logger.Information("Wrote segment {number} to file", segmentNumber);
 
@@ -96,20 +96,20 @@ public class SegmentsSorter
 
     private async Task StartFlushSegmentTask(List<RowDto> segmentRows, List<string> result, int segmentIndex)
     {
+        //gives the calling thread a green light
         await Task.Yield();
 
-        var segmentFile = await FlushSegment(segmentRows, segmentIndex);
+        var segmentFile = FlushSegment(segmentRows, segmentIndex);
         lock (result)
             result.Add(segmentFile);
     }
 
     private async Task<List<Task>> AwaitEmptyFlushSlot(List<Task> flashTasks)
     {
+        flashTasks = flashTasks.Where(x => !x.IsCompleted).ToList();
+
         while (flashTasks.Count >= _parallelSorting)
-        {
             await Task.WhenAny(flashTasks);
-            flashTasks = flashTasks.Where(x => !x.IsCompleted).ToList();
-        }
 
         return flashTasks;
     }

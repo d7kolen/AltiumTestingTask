@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Altium.Core
 {
@@ -26,13 +25,13 @@ namespace Altium.Core
             _writer = new StreamWriter(stream, Encoding.UTF8, _fileBufferSize);
         }
 
-        public async Task WriteRandomRowsAsync(int count, ILogger logger)
+        public void WriteRandomRows(int count, ILogger logger)
         {
             var random = new Random(new Guid().GetHashCode());
 
             for (int i = 0; i < count; i++)
             {
-                await WriteRowAsync(
+                WriteRow(
                     random.Next(_maxNumber),
                     _alphabet.RandomString(random, _minStringSize, _maxStringSize));
 
@@ -41,18 +40,18 @@ namespace Altium.Core
             }
         }
 
-        public async Task WriteRowsAsync(List<RowDto> rows)
+        public void WriteRows(List<RowDto> rows)
         {
             foreach (var t in rows)
                 _writer.WriteLine(t.OriginLine);
         }
 
-        private async Task WriteRowAsync(int number, string stringValue)
+        private void WriteRow(int number, string stringValue)
         {
-            await _writer.WriteAsync(number.ToString());
-            await _writer.WriteAsync(". ");
-            await _writer.WriteAsync(stringValue);
-            await _writer.WriteLineAsync();
+            _writer.Write(number.ToString());
+            _writer.Write(". ");
+            _writer.Write(stringValue);
+            _writer.WriteLine();
         }
 
         public void Dispose()
