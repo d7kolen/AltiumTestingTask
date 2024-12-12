@@ -15,6 +15,7 @@ public class SegmentsSorterTests
 
     private TempFolder _folder = null!;
     private ILogger _logger = null!;
+    private RowDtoAlphabet _alphabet = new();
 
     [SetUp]
     public void Init()
@@ -30,9 +31,9 @@ public class SegmentsSorterTests
     {
         var rows = new List<RowDto>
         {
-            new RowDto(7, "abc"),
-            new RowDto(6, "abc"),
-            new RowDto(5, "abc")
+            new RowDto("7. abc", _alphabet),
+            new RowDto("6. abc", _alphabet),
+            new RowDto("5. abc", _alphabet),
         };
 
         var segments = new SegmentsSorter(_folder.SubPath("segments"), 8, 1, _logger);
@@ -57,9 +58,9 @@ public class SegmentsSorterTests
     {
         var rows = new List<RowDto>
         {
-            new RowDto(7, "abc"),
-            new RowDto(6, "abc"),
-            new RowDto(5, "abc")
+            new RowDto("7. abc", _alphabet),
+            new RowDto("6. abc", _alphabet),
+            new RowDto("5. abc", _alphabet),
         };
 
         var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, 1, _logger);
@@ -80,8 +81,8 @@ public class SegmentsSorterTests
     {
         var rows = new List<RowDto>
         {
-            new RowDto(5, "def"),
-            new RowDto(5, "abc")
+            new RowDto("5. def", _alphabet),
+            new RowDto("5. abc", _alphabet),
         };
 
         var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, 1, _logger);
@@ -101,8 +102,8 @@ public class SegmentsSorterTests
     {
         var rows = new List<RowDto>
         {
-            new RowDto(5, "def"),
-            new RowDto(6, "abc") //StringValue has sorting priority
+            new RowDto("5. def", _alphabet),
+            new RowDto("6. abc", _alphabet), //StringValue has sorting priority
         };
 
         var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, 1, _logger);

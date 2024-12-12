@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -25,7 +26,7 @@ namespace Altium.Core
             _writer = new StreamWriter(stream, Encoding.UTF8, _fileBufferSize);
         }
 
-        public async Task WriteRandomRowsAsync(int count)
+        public async Task WriteRandomRowsAsync(int count, ILogger logger)
         {
             var random = new Random(new Guid().GetHashCode());
 
@@ -34,6 +35,9 @@ namespace Altium.Core
                 await WriteRowAsync(
                     random.Next(_maxNumber),
                     _alphabet.RandomString(random, _minStringSize, _maxStringSize));
+
+                if (i % 1000000 == 0)
+                    logger.Information("Wrote {count} random lines", i);
             }
         }
 

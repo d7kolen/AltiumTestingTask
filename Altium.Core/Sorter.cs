@@ -14,6 +14,7 @@ public class Sorter
     public int InitSegmentSize { get; set; } = 10_000_000;
     public int ReadingBufferSize { get; set; } = 10_000_000;
     public int SegmentsToMerge { get; set; } = 2;
+    public int SegmentsParallelize { get; set; } = 2;
 
     public Sorter(string tempFolder, ILogger logger)
     {
@@ -25,7 +26,7 @@ public class Sorter
     {
         var inputRows = new FileReader(inputFileName, ReadingBufferSize).Read();
 
-        var segmentsSorter = new SegmentsSorter(Path.Combine(_tempFolder, "segments"), InitSegmentSize, 30, _logger);
+        var segmentsSorter = new SegmentsSorter(Path.Combine(_tempFolder, "segments"), InitSegmentSize, SegmentsParallelize, _logger);
         var segments = await segmentsSorter.CreateSegmentsAsync(inputRows);
 
         if (segments.Count == 1)

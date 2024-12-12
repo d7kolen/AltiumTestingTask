@@ -46,13 +46,7 @@ public class FileReader
             if (parts.Length != 2)
                 yield break;
 
-            yield return new RowDto()
-            {
-                OriginLine = line,
-                Number = int.Parse(parts[0]),
-                StringValue = parts[1],
-                StringValueWeight = _alphabet.StringValueWeight(parts[1])
-            };
+            yield return new RowDto(line, _alphabet);
         }
     }
 }

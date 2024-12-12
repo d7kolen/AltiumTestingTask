@@ -1,7 +1,7 @@
 ﻿using Altium.Core;
 using FluentAssertions;
 using NUnit.Framework;
-using NUnit.Framework.Interfaces;
+using Serilog;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,15 +11,27 @@ namespace Altium.Tests;
 [TestFixture]
 public class ReadFileTests
 {
+    #region Init
+
+    private TempFolder _folder = null!;
+    private ILogger _logger = null!;
+
+    [SetUp]
+    public void Init()
+    {
+        _folder = TempFolder.Create();
+        _logger = new LoggerConfiguration().CreateLogger();
+    }
+
+    #endregion
+
     [Test]
     public async Task CreateRandomFile()
     {
-        var folder = TempFolder.Create();
-
-        var file = folder.SubPath("1.txt");
+        var file = _folder.SubPath("1.txt");
 
         using (var generator = new FileWriter(file))
-            await generator.WriteRandomRowsAsync(1);
+            await generator.WriteRandomRowsAsync(1, _logger);
 
         File.Exists(file);
 
@@ -39,12 +51,10 @@ public class ReadFileTests
     [Test]
     public async Task CreateRandomFile_SeveralLines()
     {
-        var folder = TempFolder.Create();
-
-        var file = folder.SubPath("1.txt");
+        var file = _folder.SubPath("1.txt");
 
         using (var writer = new FileWriter(file))
-            await writer.WriteRandomRowsAsync(2);
+            await writer.WriteRandomRowsAsync(2, _logger);
 
         File.Exists(file);
 
@@ -56,11 +66,10 @@ public class ReadFileTests
     [Test]
     public async Task CreateRandomFile_Can_Be_Read()
     {
-        var folder = TempFolder.Create();
-        var file = folder.SubPath("1.txt");
+        var file = _folder.SubPath("1.txt");
 
         using (var writer = new FileWriter(file))
-            await writer.WriteRandomRowsAsync(2);
+            await writer.WriteRandomRowsAsync(2, _logger);
 
         var rows = new FileReader(file, 0).Read().ToList();
 
