@@ -28,7 +28,7 @@ public class SegmentsSorter
     public async Task<List<string>> CreateSegmentsAsync(IEnumerable<RowDto> rows)
     {
         var currentSegmentSize = 0;
-        List<RowDto> segmentRows = new();
+        List<RowDto> segmentRows = new(1_000_000);
 
         List<string> result = new();
         int segmentIndex = 0;
@@ -50,7 +50,7 @@ public class SegmentsSorter
                 _logger.Information("Segment {number} prepared", segmentIndex);
 
                 var tSegmentRows = segmentRows;
-                segmentRows = new();
+                segmentRows = new(1_000_000);
                 currentSegmentSize = 0;
                 var tSegmentIndex = segmentIndex++;
 
