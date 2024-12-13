@@ -1,4 +1,6 @@
 ﻿using Serilog;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,20 +17,25 @@ public class SegmentsSorter
     private readonly ILogger _logger;
 
     /// <summary>
-    /// segmentSize is approximately segment size. Usually, we will have a bigger segment on one additional block.
+    /// segmentSize in bytes is approximately segment size. Usually, we will have a bigger segment on one additional block.
     /// </summary>
-    public SegmentsSorter(string folder, int maxSegmentSize, int parallelSorting, ILogger logger)
+    public SegmentsSorter(string folder, int maxSegmentSizeInBytes, int parallelSorting, ILogger logger)
     {
         _folder = folder;
-        _maxSegmentSize = maxSegmentSize;
+
+        _maxSegmentSize = maxSegmentSizeInBytes / 20;/*transfromation into the aproximated line count*/
+        if (_maxSegmentSize <= 0)
+            _maxSegmentSize = 1;
+
         _parallelSorting = parallelSorting <= 0 ? 1 : parallelSorting;
         _logger = logger;
     }
 
-    public async Task<List<string>> CreateSegmentsAsync(IEnumerable<RowDto> rows)
+    public async Task<List<string>> CreateSegmentsAsync(IAsyncEnumerable<List<RowDto>> rows)
     {
         var currentSegmentSize = 0;
-        List<RowDto> segmentRows = new();
+
+        var segmentRows = new List<List<RowDto>>(1000);
 
         List<string> result = new();
         int segmentIndex = 0;
@@ -40,18 +47,19 @@ public class SegmentsSorter
 
         var flushTasks = new List<Task>();
 
-        foreach (var t in rows)
+        await foreach (var tSet in rows)
         {
-            currentSegmentSize += sizeof(int) + t.StringValue.Length;
-            segmentRows.Add(t);
+            segmentRows.Add(tSet);
+            currentSegmentSize += tSet.Count;
 
             if (currentSegmentSize > _maxSegmentSize)
             {
                 _logger.Information("Segment {number} prepared", segmentIndex);
 
                 var tSegmentRows = segmentRows;
-                segmentRows = new();
+                segmentRows = new List<List<RowDto>>(1000);
                 currentSegmentSize = 0;
+
                 var tSegmentIndex = segmentIndex++;
 
                 flushTasks = await AwaitEmptyFlushSlot(flushTasks);
@@ -94,12 +102,12 @@ public class SegmentsSorter
         return segmentFileName;
     }
 
-    private async Task StartFlushSegmentTask(List<RowDto> segmentRows, List<string> result, int segmentIndex)
+    private async Task StartFlushSegmentTask(List<List<RowDto>> segmentRows, List<string> result, int segmentIndex)
     {
         //gives the calling thread a green light
         await Task.Yield();
 
-        var segmentFile = FlushSegment(segmentRows, segmentIndex);
+        var segmentFile = FlushSegment(segmentRows.SelectMany(x => x).ToList(), segmentIndex);
         lock (result)
             result.Add(segmentFile);
     }

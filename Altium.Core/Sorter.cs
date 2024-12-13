@@ -15,6 +15,7 @@ public class Sorter
     public int ReadingBufferSize { get; set; } = 10_000_000;
     public int SegmentsToMerge { get; set; } = 2;
     public int SegmentsParallelize { get; set; } = 2;
+    public int ReadingBatchSize { get; set; } = 5000;
 
     public Sorter(string tempFolder, ILogger logger)
     {
@@ -24,7 +25,7 @@ public class Sorter
 
     public async Task SortAsync(string inputFileName, string resultFileName)
     {
-        var inputRows = new FileReader(inputFileName, ReadingBufferSize).Read();
+        var inputRows = new FileReader_Async(inputFileName, ReadingBufferSize).ReadAsync(ReadingBatchSize);
 
         var segmentsSorter = new SegmentsSorter(Path.Combine(_tempFolder, "segments"), InitSegmentSize, SegmentsParallelize, _logger);
         var segments = await segmentsSorter.CreateSegmentsAsync(inputRows);
@@ -52,9 +53,7 @@ public class Sorter
             if (segments.Count != toMerge.Count)
                 resultFile = Path.Combine(mergedFolder, $"{++mergeCounter}.txt");
 
-            await
-                new SegmentsMerger_BTree(resultFile, ReadingBufferSize, _logger)
-                .MergeSegmentsAsync(toMerge);
+            await new SegmentsMerger_BTree(resultFile, ReadingBufferSize, _logger).MergeSegmentsAsync(toMerge);
 
             segments.RemoveRange(0, toMerge.Count);
             foreach (var t in toMerge)

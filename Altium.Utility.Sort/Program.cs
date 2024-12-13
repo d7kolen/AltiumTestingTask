@@ -1,4 +1,7 @@
 ﻿using Altium.Core;
+using System.Runtime;
+
+GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
 
 var config = new ConfigLoader().Load();
 
@@ -20,7 +23,7 @@ var sorter = new Sorter(tempFolder, logger);
 sorter.InitSegmentSize = 20_000_000;
 sorter.ReadingBufferSize = 100_000_000;
 sorter.SegmentsToMerge = 200;
-sorter.SegmentsParallelize = 10;
+sorter.SegmentsParallelize = 5;
 
 await sorter.SortAsync(inputFile, resultFile);
 

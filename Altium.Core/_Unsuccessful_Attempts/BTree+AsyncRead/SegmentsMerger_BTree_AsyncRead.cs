@@ -10,17 +10,17 @@ public class SegmentsMerger_BTree_AsyncRead
 
     private readonly string _fileResult;
     private readonly int _readingBufferSize;
-    private readonly int _preloadReadBugger;
+    private readonly int _readingBatchSize;
     private readonly ILogger _logger;
 
     /// <summary>
     /// readingBufferSize defines a summary size of buffers for all reading files
     /// </summary>
-    public SegmentsMerger_BTree_AsyncRead(string fileResult, int readingBufferSize, int preloadReadBugger, ILogger logger)
+    public SegmentsMerger_BTree_AsyncRead(string fileResult, int readingBufferSize, int readingBatchSize, ILogger logger)
     {
         _fileResult = fileResult;
         _readingBufferSize = readingBufferSize;
-        _preloadReadBugger = preloadReadBugger;
+        _readingBatchSize = readingBatchSize;
         _logger = logger;
     }
 
@@ -30,7 +30,7 @@ public class SegmentsMerger_BTree_AsyncRead
 
         var bufferSize = _readingBufferSize / files.Count;
 
-        var fullInputList = new List<IAsyncEnumerator<RowDto>>();
+        List<IAsyncEnumerator<RowDto>> fullInputList = new();
 
         using var writer = new FileWriter(_fileResult);
 
@@ -38,17 +38,21 @@ public class SegmentsMerger_BTree_AsyncRead
         {
             CreateInputStreams(files, bufferSize, fullInputList);
 
-            RowDtoBTree_AsyncRead actualTree = null;
+            List<IAsyncEnumerator<RowDto>> acutualList = new();
             foreach (var t in fullInputList)
                 if (await t.MoveNextAsync())
-                    actualTree = RowDtoBTree_AsyncRead.Add(actualTree, t, _comparer);
+                    acutualList.Add(t);
+
+            RowDtoBTree_AsyncRead actualTree = null;
+            foreach (var t in acutualList)
+                actualTree = RowDtoBTree_AsyncRead.Add(actualTree, t, _comparer);
 
             while (actualTree != null)
             {
                 var min = actualTree.Min();
                 writer.WriteRows(new() { min.Current.Current });
 
-                actualTree = await MoveNextAsync(actualTree);
+                actualTree = await MoveNext(actualTree);
             }
         }
         finally
@@ -60,23 +64,30 @@ public class SegmentsMerger_BTree_AsyncRead
         _logger.Information("Finish merging {count} files", files.Count);
     }
 
-    async Task<RowDtoBTree_AsyncRead> MoveNextAsync(RowDtoBTree_AsyncRead tree)
+    async Task<RowDtoBTree_AsyncRead> MoveNext(RowDtoBTree_AsyncRead list)
     {
-        var minItem = tree.Min().Current;
-        tree = RowDtoBTree_AsyncRead.RemoveMin(tree);
+        var minItem = list.Min().Current;
+        list = RowDtoBTree_AsyncRead.RemoveMin(list);
 
         if (await minItem.MoveNextAsync())
-            return RowDtoBTree_AsyncRead.Add(tree, minItem, _comparer);
+            list = RowDtoBTree_AsyncRead.Add(list, minItem, _comparer);
 
-        return tree;
+        return list;
     }
 
     void CreateInputStreams(List<string> files, int bufferSize, List<IAsyncEnumerator<RowDto>> fullList)
     {
         foreach (var t in files)
         {
-            var tInput = new FileReader(t, bufferSize).ReadAsync(_preloadReadBugger).GetAsyncEnumerator();
+            var tInput = Simplify(new FileReader_Async(t, bufferSize).ReadAsync(_readingBatchSize)).GetAsyncEnumerator();
             fullList.Add(tInput);
         }
+    }
+
+    async IAsyncEnumerable<RowDto> Simplify(IAsyncEnumerable<List<RowDto>> list)
+    {
+        await foreach (var tSet in list)
+            foreach (var t in tSet)
+                yield return t;
     }
 }
