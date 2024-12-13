@@ -42,7 +42,7 @@ public class SegmentsSorter
 
         foreach (var t in rows)
         {
-            currentSegmentSize += sizeof(int) + t.StringValue.Length;
+            currentSegmentSize += t.OriginLine.Length;
             segmentRows.Add(t);
 
             if (currentSegmentSize > _maxSegmentSize)
