@@ -27,7 +27,7 @@ public class SegmentsMerger_BTree
     {
         _logger.Information("Start merging {count} files", files.Count);
 
-        var bufferSize = _readingBufferSize / files.Count;
+        var bufferSize = _readingBufferSize;
 
         var fullInputList = new List<IEnumerator<RowDto>>();
 
