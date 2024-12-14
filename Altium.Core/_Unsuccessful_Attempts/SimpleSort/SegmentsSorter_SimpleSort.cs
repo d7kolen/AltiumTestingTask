@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Altium.Core;
 
-public class SegmentsSorter_DynamicSort
+public class SegmentsSorter_SimpleSort
 {
     private readonly RowDtoComparer _comparer = new();
     private readonly string _folder;
@@ -17,7 +17,7 @@ public class SegmentsSorter_DynamicSort
     /// <summary>
     /// segmentSize is approximately segment size. Usually, we will have a bigger segment on one additional block.
     /// </summary>
-    public SegmentsSorter_DynamicSort(string folder, int maxSegmentSize, int parallelSorting, ILogger logger)
+    public SegmentsSorter_SimpleSort(string folder, int maxSegmentSize, int parallelSorting, ILogger logger)
     {
         _folder = folder;
         _maxSegmentSize = maxSegmentSize;
@@ -27,10 +27,11 @@ public class SegmentsSorter_DynamicSort
 
     public async Task<List<string>> CreateSegmentsAsync(IEnumerable<RowDto> rows)
     {
-        List<RowDto> segmentRows = new(_maxSegmentSize);
+        RowDtoSorting segmentRows = null;
+        int segmentSize = 0;
 
         List<string> result = new();
-        int segmentIndex = 0;
+        int segmentNumber = 0;
 
         if (!Directory.Exists(_folder))
             Directory.CreateDirectory(_folder);
@@ -41,25 +42,27 @@ public class SegmentsSorter_DynamicSort
 
         foreach (var t in rows)
         {
-            segmentRows.Add(t);
+            segmentRows = new RowDtoSorting(t, segmentRows);
+            segmentSize++;
 
-            if (segmentRows.Count > _maxSegmentSize)
+            if (segmentSize > _maxSegmentSize)
             {
-                _logger.Information("Segment {number} prepared", segmentIndex);
+                _logger.Information("Segment {number} prepared", segmentNumber);
 
                 var tSegmentRows = segmentRows;
-                segmentRows = new(_maxSegmentSize);
-                var tSegmentIndex = segmentIndex++;
+                segmentRows = null;
+                segmentSize = 0;
+                var tSegmentNumber = segmentNumber++;
 
-                flushTasks = await AwaitEmptyFlushSlot(flushTasks);
-                flushTasks.Add(StartFlushSegmentTask(tSegmentRows, result, tSegmentIndex));
+                flushTasks = await AwaitFreeFlushSlot(flushTasks);
+                flushTasks.Add(FlushSegmentAsync(tSegmentRows, tSegmentNumber, result));
             }
         }
 
-        if (segmentRows.Any())
+        if (segmentRows != null)
         {
-            flushTasks = await AwaitEmptyFlushSlot(flushTasks);
-            flushTasks.Add(StartFlushSegmentTask(segmentRows, result, segmentIndex));
+            flushTasks = await AwaitFreeFlushSlot(flushTasks);
+            flushTasks.Add(FlushSegmentAsync(segmentRows, segmentNumber, result));
         }
 
         await Task.WhenAll(flushTasks);
@@ -67,45 +70,54 @@ public class SegmentsSorter_DynamicSort
         return result;
     }
 
-    private string FlushSegment(List<RowDto> segmentRows, int segmentNumber)
+    private async Task FlushSegmentAsync(RowDtoSorting segmentRows, int segmentNumber, List<string> result)
     {
+        //gives the calling thread a green light
+        await Task.Yield();
+
         _logger.Information("Sorting segment {number}", segmentNumber);
 
-        segmentRows.Sort(_comparer);
+        segmentRows = RowDtoSorting.Sort(segmentRows, _comparer);
 
         _logger.Information("Sorted segment {number}", segmentNumber);
 
-        var folder = _folder;
+        var segmentFile = WriteSegment(segmentRows, SegmentFileName(segmentNumber));
+
+        _logger.Information("Wrote segment {number} to file", segmentNumber);
+
+        lock (result)
+            result.Add(segmentFile);
+    }
+
+    private string WriteSegment(RowDtoSorting segment, string segmentFileName)
+    {
+        using var writer = new FileWriter(segmentFileName);
+
+        while (segment != null)
+        {
+            writer.WriteRow(segment.Data);
+            segment = segment.Bigger;
+        }
+
+        return segmentFileName;
+    }
+
+    private string SegmentFileName(int segmentNumber)
+    {
+        var tFolder = _folder;
 
         //Protecting the file system from a huge amount of files in one directory
         var subfolderId = segmentNumber / 100;
         if (subfolderId > 0)
         {
-            folder = Path.Combine(_folder, subfolderId.ToString());
-            Directory.CreateDirectory(folder);
+            tFolder = Path.Combine(_folder, subfolderId.ToString());
+            Directory.CreateDirectory(tFolder);
         }
 
-        var segmentFileName = Path.Combine(folder, segmentNumber.ToString() + ".txt");
-        using var writer = new FileWriter(segmentFileName);
-        foreach (var t in segmentRows)
-            writer.WriteRow(t);
-
-        _logger.Information("Wrote segment {number} to file", segmentNumber);
-
-        return segmentFileName;
+        return Path.Combine(tFolder, segmentNumber.ToString() + ".txt");
     }
 
-    private async Task StartFlushSegmentTask(List<RowDto> segmentRows, List<string> result, int segmentIndex)
-    {
-        //gives the calling thread a green light
-        await Task.Yield();
-
-        var segmentFile = FlushSegment(segmentRows, segmentIndex);
-        lock (result)
-            result.Add(segmentFile);
-    }
-
-    private async Task<List<Task>> AwaitEmptyFlushSlot(List<Task> flashTasks)
+    private async Task<List<Task>> AwaitFreeFlushSlot(List<Task> flashTasks)
     {
         flashTasks = flashTasks.Where(x => !x.IsCompleted).ToList();
 
