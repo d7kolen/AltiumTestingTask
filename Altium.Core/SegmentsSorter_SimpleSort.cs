@@ -1,4 +1,5 @@
 ﻿using Serilog;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,8 +31,8 @@ public class SegmentsSorter_SimpleSort
         List<RowDto> segmentRows = new(_maxSegmentSize);
         int segmentSize = 0;
 
-        List<string> result = new();
-        int segmentIndex = 0;
+        ConcurrentBag<string> result = new();
+        int segmentNumber = 0;
 
         if (!Directory.Exists(_folder))
             Directory.CreateDirectory(_folder);
@@ -47,37 +48,54 @@ public class SegmentsSorter_SimpleSort
 
             if (segmentSize > _maxSegmentSize)
             {
-                _logger.Information("Segment {number} prepared", segmentIndex);
+                _logger.Information("Segment {number} prepared", segmentNumber);
 
                 var tSegmentRows = segmentRows;
                 segmentRows = new(_maxSegmentSize);
                 segmentSize = 0;
-                var tSegmentIndex = segmentIndex++;
+                var tSegmentNumber = segmentNumber++;
 
                 flushTasks = await AwaitEmptyFlushSlot(flushTasks);
-                flushTasks.Add(StartFlushSegmentTask(tSegmentRows, result, tSegmentIndex));
+                flushTasks.Add(FlushSegmentAsync(tSegmentRows, tSegmentNumber, result));
             }
         }
 
         if (segmentRows.Any())
         {
             flushTasks = await AwaitEmptyFlushSlot(flushTasks);
-            flushTasks.Add(StartFlushSegmentTask(segmentRows, result, segmentIndex));
+            flushTasks.Add(FlushSegmentAsync(segmentRows, segmentNumber, result));
         }
 
         await Task.WhenAll(flushTasks);
 
-        return result;
+        return result.ToList();
     }
 
-    private string FlushSegment(List<RowDto> segmentRows, int segmentNumber)
+    private async Task<string> FlushSegmentAsync(List<RowDto> segmentRows, int segmentNumber, ConcurrentBag<string> result)
     {
+        //gives the calling thread a green light
+        await Task.Yield();
+
         _logger.Information("Sorting segment {number}", segmentNumber);
 
         segmentRows.Sort(_comparer);
 
         _logger.Information("Sorted segment {number}", segmentNumber);
 
+        string segmentFileName = SegmentFileName(segmentNumber);
+        using var writer = new FileWriter(segmentFileName);
+        foreach (var t in segmentRows)
+            writer.WriteRow(t);
+
+        _logger.Information("Wrote segment {number} to file", segmentNumber);
+
+        result.Add(segmentFileName);
+
+        return segmentFileName;
+    }
+
+    private string SegmentFileName(int segmentNumber)
+    {
         var folder = _folder;
 
         //Protecting the file system from a huge amount of files in one directory
@@ -88,24 +106,7 @@ public class SegmentsSorter_SimpleSort
             Directory.CreateDirectory(folder);
         }
 
-        var segmentFileName = Path.Combine(folder, segmentNumber.ToString() + ".txt");
-        using var writer = new FileWriter(segmentFileName);
-        foreach (var t in segmentRows)
-            writer.WriteRow(t);
-
-        _logger.Information("Wrote segment {number} to file", segmentNumber);
-
-        return segmentFileName;
-    }
-
-    private async Task StartFlushSegmentTask(List<RowDto> segmentRows, List<string> result, int segmentIndex)
-    {
-        //gives the calling thread a green light
-        await Task.Yield();
-
-        var segmentFile = FlushSegment(segmentRows, segmentIndex);
-        lock (result)
-            result.Add(segmentFile);
+        return Path.Combine(folder, segmentNumber.ToString() + ".txt");
     }
 
     private async Task<List<Task>> AwaitEmptyFlushSlot(List<Task> flashTasks)
