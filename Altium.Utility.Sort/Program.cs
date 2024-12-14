@@ -22,6 +22,12 @@ sorter.ReadingBufferSize = 1_000_000;
 sorter.SegmentsToMerge = 200;
 sorter.SegmentsParallelize = 10;
 
-await sorter.SortAsync(inputFile, resultFile);
-
-logger.Information("Finish");
+try
+{
+    await sorter.SortAsync(inputFile, resultFile);
+    logger.Information("Finish");
+}
+catch (Exception e)
+{
+    logger.Error(e, "Error");
+}
