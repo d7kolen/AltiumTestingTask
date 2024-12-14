@@ -36,7 +36,7 @@ public class SegmentsSorterTests
             new RowDto("5. abc", _alphabet),
         };
 
-        var segments = new SegmentsSorter(_folder.SubPath("segments"), 8, 1, _logger);
+        var segments = new SegmentsSorter(_folder.SubPath("segments"), 1, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(2);

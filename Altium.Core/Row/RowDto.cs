@@ -22,16 +22,6 @@ public class RowDto
     {
         OriginLine = originLine;
         _alphabet = alphabet;
-                
-        var parts = OriginLine.Split(". ");
-        if (parts.Length != 2)
-            throw new NotSupportedException();
-
-        _number = int.Parse(parts[0]);
-        _stringValue = parts[1];
-        _stringValueWeight = _alphabet.StringValueWeight(parts[1]);
-
-        _parsed = true;
     }
 
     private RowDto Parse()
