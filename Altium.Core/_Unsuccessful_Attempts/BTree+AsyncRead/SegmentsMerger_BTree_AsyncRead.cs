@@ -46,7 +46,7 @@ public class SegmentsMerger_BTree_AsyncRead
             while (actualTree != null)
             {
                 var min = actualTree.Min();
-                writer.WriteRows(new() { min.Current.Current });
+                writer.WriteRow(min.Current.Current);
 
                 actualTree = await MoveNextAsync(actualTree);
             }

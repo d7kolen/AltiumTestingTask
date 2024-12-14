@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Altium.Core;
 
-public class SegmentsSorter
+public class SegmentsSorter_DynamicSort
 {
     private readonly RowDtoComparer _comparer = new();
     private readonly string _folder;
@@ -17,7 +17,7 @@ public class SegmentsSorter
     /// <summary>
     /// segmentSize is approximately segment size. Usually, we will have a bigger segment on one additional block.
     /// </summary>
-    public SegmentsSorter(string folder, int maxSegmentSize, int parallelSorting, ILogger logger)
+    public SegmentsSorter_DynamicSort(string folder, int maxSegmentSize, int parallelSorting, ILogger logger)
     {
         _folder = folder;
         _maxSegmentSize = maxSegmentSize;
@@ -56,8 +56,11 @@ public class SegmentsSorter
             }
         }
 
-        flushTasks = await AwaitEmptyFlushSlot(flushTasks);
-        flushTasks.Add(StartFlushSegmentTask(segmentRows, result, segmentIndex));
+        if (segmentRows.Any())
+        {
+            flushTasks = await AwaitEmptyFlushSlot(flushTasks);
+            flushTasks.Add(StartFlushSegmentTask(segmentRows, result, segmentIndex));
+        }
 
         await Task.WhenAll(flushTasks);
 
@@ -84,7 +87,8 @@ public class SegmentsSorter
 
         var segmentFileName = Path.Combine(folder, segmentNumber.ToString() + ".txt");
         using var writer = new FileWriter(segmentFileName);
-        writer.WriteRows(segmentRows);
+        foreach (var t in segmentRows)
+            writer.WriteRow(t);
 
         _logger.Information("Wrote segment {number} to file", segmentNumber);
 

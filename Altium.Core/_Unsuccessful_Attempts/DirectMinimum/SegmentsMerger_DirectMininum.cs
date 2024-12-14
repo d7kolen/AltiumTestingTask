@@ -42,7 +42,7 @@ public class SegmentsMerger_DirectMininum
             while (acutualList.Any())
             {
                 var min = acutualList.Min(_comparer);
-                writer.WriteRows(new() { min.Current });
+                writer.WriteRow(min.Current);
 
                 MoveNext(acutualList, min);
             }

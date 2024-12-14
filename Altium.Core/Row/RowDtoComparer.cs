@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Altium.Core;
 
-class RowDtoComparer : IComparer<RowDto>
+public class RowDtoComparer : IComparer<RowDto>
 {
     public int Compare(RowDto x, RowDto y)
     {

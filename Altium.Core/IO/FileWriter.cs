@@ -19,10 +19,10 @@ namespace Altium.Core
 
         public FileWriter(string fileName)
         {
-            var stream = new FileStream(fileName, FileMode.CreateNew, FileAccess.Write);
+            Stream _stream = new FileStream(fileName, FileMode.CreateNew, FileAccess.Write);
 
             //writer will close the 'stream' implicitly
-            _writer = new StreamWriter(stream, Encoding.UTF8, _fileBufferSize);
+            _writer = new StreamWriter(_stream, Encoding.UTF8, _fileBufferSize);
         }
 
         public void WriteRandomRows(int count, ILogger logger)
@@ -40,10 +40,9 @@ namespace Altium.Core
             }
         }
 
-        public void WriteRows(List<RowDto> rows)
+        public void WriteRow(RowDto row)
         {
-            foreach (var t in rows)
-                _writer.WriteLine(t.OriginLine);
+            _writer.WriteLine(row.OriginLine);
         }
 
         private void WriteRow(int number, string stringValue)
