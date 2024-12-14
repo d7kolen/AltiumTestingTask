@@ -8,7 +8,7 @@ namespace Altium.Core
 {
     public class FileWriter : IDisposable
     {
-        const int _fileBufferSize = 10_000_000;
+        const int _fileBufferSize = 1_000_000;
         const int _maxNumber = 9_999;
 
         const int _minStringSize = 3;

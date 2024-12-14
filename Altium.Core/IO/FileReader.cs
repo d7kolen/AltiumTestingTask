@@ -41,12 +41,6 @@ public class FileReader
 
         string line = null;
         while ((line = reader.ReadLine()) != null)
-        {
-            var parts = line.Split(". ");
-            if (parts.Length != 2)
-                yield break;
-
             yield return new RowDto(line, _alphabet);
-        }
     }
 }

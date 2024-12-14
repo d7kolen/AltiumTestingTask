@@ -27,8 +27,7 @@ public class SegmentsSorter
 
     public async Task<List<string>> CreateSegmentsAsync(IEnumerable<RowDto> rows)
     {
-        var currentSegmentSize = 0;
-        List<RowDto> segmentRows = new(1_000_000);
+        List<RowDto> segmentRows = new(_maxSegmentSize);
 
         List<string> result = new();
         int segmentIndex = 0;
@@ -42,16 +41,14 @@ public class SegmentsSorter
 
         foreach (var t in rows)
         {
-            currentSegmentSize += t.OriginLine.Length;
             segmentRows.Add(t);
 
-            if (currentSegmentSize > _maxSegmentSize)
+            if (segmentRows.Count > _maxSegmentSize)
             {
                 _logger.Information("Segment {number} prepared", segmentIndex);
 
                 var tSegmentRows = segmentRows;
-                segmentRows = new(1_000_000);
-                currentSegmentSize = 0;
+                segmentRows = new(_maxSegmentSize);
                 var tSegmentIndex = segmentIndex++;
 
                 flushTasks = await AwaitEmptyFlushSlot(flushTasks);
