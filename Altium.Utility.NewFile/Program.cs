@@ -6,7 +6,7 @@ using var logger = new LoggerFactory().CreateLogger(config["LogFolder"]);
 
 logger.Information("Start");
 
-var filePath = @"c:\Temp\Altium\input.txt";
+var filePath = config["ResultFile"];
 if (File.Exists(filePath))
     File.Delete(filePath);
 
