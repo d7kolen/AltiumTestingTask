@@ -29,8 +29,7 @@ public class SegmentsSorter_SimpleSort
     public async Task<List<string>> CreateSegmentsAsync(IEnumerable<RowDto> rows)
     {
         List<RowDto> segmentRows = new(_maxSegmentSize);
-        int segmentSize = 0;
-
+        
         ConcurrentBag<string> result = new();
         int segmentNumber = 0;
 
@@ -44,15 +43,13 @@ public class SegmentsSorter_SimpleSort
         foreach (var t in rows)
         {
             segmentRows.Add(t);
-            segmentSize += t.OriginLine.Length;
 
-            if (segmentSize > _maxSegmentSize)
+            if (segmentRows.Count > _maxSegmentSize)
             {
                 _logger.Information("Segment {number} prepared", segmentNumber);
 
                 var tSegmentRows = segmentRows;
                 segmentRows = new(_maxSegmentSize);
-                segmentSize = 0;
                 var tSegmentNumber = segmentNumber++;
 
                 flushTasks = await AwaitEmptyFlushSlot(flushTasks);

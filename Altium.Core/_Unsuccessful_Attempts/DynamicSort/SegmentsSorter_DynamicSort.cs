@@ -43,7 +43,7 @@ public class SegmentsSorter_DynamicSort
         foreach (var t in rows)
         {
             segmentRows = new RowDtoSorting(t, segmentRows);
-            segmentSize += t.OriginLine.Length;
+            segmentSize++;
 
             if (segmentSize > _maxSegmentSize)
             {
