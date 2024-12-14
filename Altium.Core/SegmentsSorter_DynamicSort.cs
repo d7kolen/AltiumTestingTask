@@ -52,10 +52,10 @@ public class SegmentsSorter
                 var tSegmentRows = segmentRows;
                 segmentRows = null;
                 segmentSize = 0;
-                var tSegmentIndex = segmentNumber++;
+                var tSegmentNumber = segmentNumber++;
 
                 flushTasks = await AwaitFreeFlushSlot(flushTasks);
-                flushTasks.Add(FlushSegmentAsync(tSegmentRows, tSegmentIndex, result));
+                flushTasks.Add(FlushSegmentAsync(tSegmentRows, tSegmentNumber, result));
             }
         }
 
