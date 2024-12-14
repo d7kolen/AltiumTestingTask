@@ -21,7 +21,7 @@ public class FileReaderTests : IRowFileTest
 
         rows.Should().HaveCount(1);
         rows[0].Number.Should().Be(5);
-        rows[0].StringValue.Should().Be("abc");
+        rows[0].StringValueAsString().Should().Be("abc");
     }
 
     [Test]
@@ -38,10 +38,10 @@ public class FileReaderTests : IRowFileTest
         rows.Should().HaveCount(2);
 
         rows[0].Number.Should().Be(5);
-        rows[0].StringValue.Should().Be("abc");
+        rows[0].StringValueAsString().Should().Be("abc");
 
         rows[1].Number.Should().Be(7);
-        rows[1].StringValue.Should().Be("def");
+        rows[1].StringValueAsString().Should().Be("def");
     }
 
     [Test]
@@ -60,12 +60,12 @@ public class FileReaderTests : IRowFileTest
         rows1.MoveNext();
 
         rows0.Current.Number.Should().Be(rows1.Current.Number);
-        rows0.Current.StringValue.Should().Be(rows1.Current.StringValue);
+        rows0.Current.StringValueAsString().Should().Be(rows1.Current.StringValueAsString());
 
         rows0.MoveNext();
         rows1.MoveNext();
 
         rows0.Current.Number.Should().Be(rows1.Current.Number);
-        rows0.Current.StringValue.Should().Be(rows1.Current.StringValue);
+        rows0.Current.StringValueAsString().Should().Be(rows1.Current.StringValueAsString());
     }
 }
