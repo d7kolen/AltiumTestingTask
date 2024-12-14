@@ -28,15 +28,17 @@ namespace Altium.Core
             return string.Concat(symbols);
         }
 
-        public long? StringValueWeight(string stringValue)
+        public long? StringValueWeight(ReadOnlyMemory<char> stringValue)
         {
             long sum = 0;
+
+            var stringValueSpan = stringValue.Span;
 
             for (int i = 0; i < _weightAnalysisLevel; i++)
             {
                 sum *= _alphabet.Length;
 
-                if (stringValue.Length > i && _alphabetIndexes.TryGetValue(stringValue[i], out var index))
+                if (stringValue.Length > i && _alphabetIndexes.TryGetValue(stringValueSpan[i], out var index))
                     sum += index;
             }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Altium.Core;
 
@@ -12,9 +13,9 @@ class RowDtoComparer : IComparer<RowDto>
             return x.StringValueWeight < y.StringValueWeight ? -1 : 1;
         }
 
-        var result = x.StringValue.CompareTo(y.StringValue);
-        if (result != 0)
-            return result;
+        var valueCompare = x.StringValue.Span.CompareTo(y.StringValue.Span, StringComparison.Ordinal);
+        if (valueCompare != 0)
+            return valueCompare;
 
         return x.Number.CompareTo(y.Number);
     }

@@ -36,7 +36,7 @@ public class SegmentsSorterTests
             new RowDto("5. abc", _alphabet),
         };
 
-        var segments = new SegmentsSorter(_folder.SubPath("segments"), 8, 1, _logger);
+        var segments = new SegmentsSorter(_folder.SubPath("segments"), 1, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(2);
@@ -92,9 +92,9 @@ public class SegmentsSorterTests
 
         var resultRows = new FileReader(fileList[0], 0).Read().ToList();
 
-        resultRows.Should().HaveCount(2);
-        resultRows[0].StringValue.Should().Be("abc");
-        resultRows[1].StringValue.Should().Be("def");
+        resultRows.Should().HaveCount(2);        
+        resultRows[0].StringValueAsString().Should().Be("abc");
+        resultRows[1].StringValueAsString().Should().Be("def");
     }
 
     [Test]
@@ -114,7 +114,28 @@ public class SegmentsSorterTests
         var resultRows = new FileReader(fileList[0], 0).Read().ToList();
 
         resultRows.Should().HaveCount(2);
-        resultRows[0].StringValue.Should().Be("abc");
-        resultRows[1].StringValue.Should().Be("def");
+        resultRows[0].StringValueAsString().Should().Be("abc");
+        resultRows[1].StringValueAsString().Should().Be("def");
+    }
+
+    [Test]
+    public async Task SegmentSorting_SortingCriterias_2()
+    {
+        var rows = new List<RowDto>
+        {
+            new RowDto("5. abcd", _alphabet),
+            new RowDto("5. abc", _alphabet), //StringValue has sorting priority
+        };
+
+        var segments = new SegmentsSorter(_folder.SubPath("segments"), 100, 1, _logger);
+        var fileList = await segments.CreateSegmentsAsync(rows);
+
+        fileList.Should().HaveCount(1);
+
+        var resultRows = new FileReader(fileList[0], 0).Read().ToList();
+
+        resultRows.Should().HaveCount(2);
+        resultRows[0].StringValueAsString().Should().Be("abc");
+        resultRows[1].StringValueAsString().Should().Be("abcd");
     }
 }
