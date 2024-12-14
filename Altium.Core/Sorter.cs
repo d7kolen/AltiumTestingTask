@@ -26,7 +26,7 @@ public class Sorter
     {
         var inputRows = new FileReader(inputFileName, ReadingBufferSize).Read();
 
-        var segmentsSorter = new SegmentsSorter_DynamicSort(Path.Combine(_tempFolder, "segments"), InitSegmentSize, SegmentsParallelize, _logger);
+        var segmentsSorter = new SegmentsSorter_SimpleSort(Path.Combine(_tempFolder, "segments"), InitSegmentSize, SegmentsParallelize, _logger);
         var segments = await segmentsSorter.CreateSegmentsAsync(inputRows);
 
         if (segments.Count == 1)

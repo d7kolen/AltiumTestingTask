@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Altium.Core;
 
-public class SegmentsSorter_DynamicSort
+public class SegmentsSorter_SimpleSort
 {
     private readonly RowDtoComparer _comparer = new();
     private readonly string _folder;
@@ -17,7 +17,7 @@ public class SegmentsSorter_DynamicSort
     /// <summary>
     /// segmentSize is approximately segment size. Usually, we will have a bigger segment on one additional block.
     /// </summary>
-    public SegmentsSorter_DynamicSort(string folder, int maxSegmentSize, int parallelSorting, ILogger logger)
+    public SegmentsSorter_SimpleSort(string folder, int maxSegmentSize, int parallelSorting, ILogger logger)
     {
         _folder = folder;
         _maxSegmentSize = maxSegmentSize;
@@ -28,6 +28,7 @@ public class SegmentsSorter_DynamicSort
     public async Task<List<string>> CreateSegmentsAsync(IEnumerable<RowDto> rows)
     {
         List<RowDto> segmentRows = new(_maxSegmentSize);
+        int segmentSize = 0;
 
         List<string> result = new();
         int segmentIndex = 0;
@@ -42,13 +43,15 @@ public class SegmentsSorter_DynamicSort
         foreach (var t in rows)
         {
             segmentRows.Add(t);
+            segmentSize += t.OriginLine.Length;
 
-            if (segmentRows.Count > _maxSegmentSize)
+            if (segmentSize > _maxSegmentSize)
             {
                 _logger.Information("Segment {number} prepared", segmentIndex);
 
                 var tSegmentRows = segmentRows;
                 segmentRows = new(_maxSegmentSize);
+                segmentSize = 0;
                 var tSegmentIndex = segmentIndex++;
 
                 flushTasks = await AwaitEmptyFlushSlot(flushTasks);

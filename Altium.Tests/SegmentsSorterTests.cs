@@ -36,7 +36,7 @@ public class SegmentsSorterDynamicSortTests
             new RowDto("5. abc", _alphabet),
         };
 
-        var segments = new SegmentsSorter_DynamicSort(_folder.SubPath("segments"), 1, 1, _logger);
+        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 1, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(2);
@@ -63,7 +63,7 @@ public class SegmentsSorterDynamicSortTests
             new RowDto("5. abc", _alphabet),
         };
 
-        var segments = new SegmentsSorter_DynamicSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(1);
@@ -85,7 +85,7 @@ public class SegmentsSorterDynamicSortTests
             new RowDto("5. abc", _alphabet),
         };
 
-        var segments = new SegmentsSorter_DynamicSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(1);
@@ -106,7 +106,7 @@ public class SegmentsSorterDynamicSortTests
             new RowDto("6. abc", _alphabet), //StringValue has sorting priority
         };
 
-        var segments = new SegmentsSorter_DynamicSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(1);
@@ -127,7 +127,7 @@ public class SegmentsSorterDynamicSortTests
             new RowDto("5. abc", _alphabet), //StringValue has sorting priority
         };
 
-        var segments = new SegmentsSorter_DynamicSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
 
         fileList.Should().HaveCount(1);

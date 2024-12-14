@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Altium.Core;
 
-public class SegmentsSorter_SimpleSort
+public class SegmentsSorter_DynamicSort
 {
     private readonly RowDtoComparer _comparer = new();
     private readonly string _folder;
@@ -17,7 +17,7 @@ public class SegmentsSorter_SimpleSort
     /// <summary>
     /// segmentSize is approximately segment size. Usually, we will have a bigger segment on one additional block.
     /// </summary>
-    public SegmentsSorter_SimpleSort(string folder, int maxSegmentSize, int parallelSorting, ILogger logger)
+    public SegmentsSorter_DynamicSort(string folder, int maxSegmentSize, int parallelSorting, ILogger logger)
     {
         _folder = folder;
         _maxSegmentSize = maxSegmentSize;
@@ -43,7 +43,7 @@ public class SegmentsSorter_SimpleSort
         foreach (var t in rows)
         {
             segmentRows = new RowDtoSorting(t, segmentRows);
-            segmentSize++;
+            segmentSize += t.OriginLine.Length;
 
             if (segmentSize > _maxSegmentSize)
             {

@@ -17,7 +17,7 @@ if (File.Exists(resultFile))
 var inputFile = config["InputFile"];
 
 var sorter = new Sorter(tempFolder, logger);
-sorter.InitSegmentSize = 800_000;
+sorter.InitSegmentSize = 20_000_000;
 sorter.ReadingBufferSize = 1_000_000;
 sorter.SegmentsToMerge = 200;
 sorter.SegmentsParallelize = 10;
