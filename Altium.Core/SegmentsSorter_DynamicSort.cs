@@ -31,7 +31,7 @@ public class SegmentsSorter
         int segmentSize = 0;
 
         List<string> result = new();
-        int segmentIndex = 0;
+        int segmentNumber = 0;
 
         if (!Directory.Exists(_folder))
             Directory.CreateDirectory(_folder);
@@ -47,12 +47,12 @@ public class SegmentsSorter
 
             if (segmentSize > _maxSegmentSize)
             {
-                _logger.Information("Segment {number} prepared", segmentIndex);
+                _logger.Information("Segment {number} prepared", segmentNumber);
 
                 var tSegmentRows = segmentRows;
                 segmentRows = null;
                 segmentSize = 0;
-                var tSegmentIndex = segmentIndex++;
+                var tSegmentIndex = segmentNumber++;
 
                 flushTasks = await AwaitFreeFlushSlot(flushTasks);
                 flushTasks.Add(FlushSegmentAsync(tSegmentRows, tSegmentIndex, result));
@@ -62,7 +62,7 @@ public class SegmentsSorter
         if (segmentRows != null)
         {
             flushTasks = await AwaitFreeFlushSlot(flushTasks);
-            flushTasks.Add(FlushSegmentAsync(segmentRows, segmentIndex, result));
+            flushTasks.Add(FlushSegmentAsync(segmentRows, segmentNumber, result));
         }
 
         await Task.WhenAll(flushTasks);
