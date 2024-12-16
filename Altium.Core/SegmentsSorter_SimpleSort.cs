@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Altium.Core;
@@ -29,7 +30,7 @@ public class SegmentsSorter_SimpleSort
     public async Task<List<string>> CreateSegmentsAsync(IEnumerable<RowDto> rows)
     {
         List<RowDto> segmentRows = new(_maxSegmentSize);
-        
+
         ConcurrentBag<string> result = new();
         int segmentNumber = 0;
 
@@ -38,32 +39,27 @@ public class SegmentsSorter_SimpleSort
 
         _logger.Information("Start reading segments");
 
-        var flushTasks = new List<Task>();
-
-        foreach (var t in rows)
+        await using (var flushTasks = new TaskSet(_parallelSorting, CancellationToken.None))
         {
-            segmentRows.Add(t);
-
-            if (segmentRows.Count > _maxSegmentSize)
+            foreach (var t in rows)
             {
-                _logger.Information("Segment {number} prepared", segmentNumber);
+                segmentRows.Add(t);
 
-                var tSegmentRows = segmentRows;
-                segmentRows = new(_maxSegmentSize);
-                var tSegmentNumber = segmentNumber++;
+                if (segmentRows.Count > _maxSegmentSize)
+                {
+                    _logger.Information("Segment {number} prepared", segmentNumber);
 
-                flushTasks = await AwaitEmptyFlushSlot(flushTasks);
-                flushTasks.Add(FlushSegmentAsync(tSegmentRows, tSegmentNumber, result));
+                    var tSegmentRows = segmentRows;
+                    segmentRows = new(_maxSegmentSize);
+                    var tSegmentNumber = segmentNumber++;
+
+                    await flushTasks.WaitAndAdd(() => FlushSegmentAsync(tSegmentRows, tSegmentNumber, result));
+                }
             }
-        }
 
-        if (segmentRows.Any())
-        {
-            flushTasks = await AwaitEmptyFlushSlot(flushTasks);
-            flushTasks.Add(FlushSegmentAsync(segmentRows, segmentNumber, result));
+            if (segmentRows.Any())
+                await flushTasks.WaitAndAdd(() => FlushSegmentAsync(segmentRows, segmentNumber, result));
         }
-
-        await Task.WhenAll(flushTasks);
 
         return result.ToList();
     }
@@ -104,18 +100,5 @@ public class SegmentsSorter_SimpleSort
         }
 
         return Path.Combine(folder, segmentNumber.ToString() + ".txt");
-    }
-
-    private async Task<List<Task>> AwaitEmptyFlushSlot(List<Task> flashTasks)
-    {
-        flashTasks = flashTasks.Where(x => !x.IsCompleted).ToList();
-
-        while (flashTasks.Count >= _parallelSorting)
-        {
-            await Task.WhenAny(flashTasks);
-            flashTasks = flashTasks.Where(x => !x.IsCompleted).ToList();
-        }
-
-        return flashTasks;
     }
 }

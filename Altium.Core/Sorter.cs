@@ -15,6 +15,7 @@ public class Sorter
     public int ReadingBufferSize { get; set; } = 10_000_000;
     public int SegmentsToMerge { get; set; } = 2;
     public int SegmentsParallelize { get; set; } = 2;
+    public int MergeParallelize { get; set; } = 2;
 
     public Sorter(string tempFolder, ILogger logger)
     {

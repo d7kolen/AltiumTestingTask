@@ -143,4 +143,48 @@ public class SegmentsSorterDynamicSortTests
         resultRows[0].StringValueAsString().Should().Be("abc");
         resultRows[1].StringValueAsString().Should().Be("abcd");
     }
+
+    [Test]
+    public async Task SegmentSorting_SortingCriterias_3()
+    {
+        var rows = new List<RowDto>
+        {
+            new RowDto("5. abc", _alphabet),
+            new RowDto("5. 123", _alphabet), //StringValue has sorting priority
+        };
+
+        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var fileList = await segments.CreateSegmentsAsync(rows);
+        fileList.Sort();
+
+        fileList.Should().HaveCount(1);
+
+        var resultRows = new FileReader(fileList[0], 0).Read().ToList();
+
+        resultRows.Should().HaveCount(2);
+        resultRows[0].StringValueAsString().Should().Be("123");
+        resultRows[1].StringValueAsString().Should().Be("abc");
+    }
+
+    [Test]
+    public async Task SegmentSorting_SortingCriterias_4()
+    {
+        var rows = new List<RowDto>
+        {
+            new RowDto("5. 123", _alphabet),
+            new RowDto("5. 23", _alphabet), //StringValue has sorting priority
+        };
+
+        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var fileList = await segments.CreateSegmentsAsync(rows);
+        fileList.Sort();
+
+        fileList.Should().HaveCount(1);
+
+        var resultRows = new FileReader(fileList[0], 0).Read().ToList();
+
+        resultRows.Should().HaveCount(2);
+        resultRows[0].StringValueAsString().Should().Be("123");
+        resultRows[1].StringValueAsString().Should().Be("23");
+    }
 }
