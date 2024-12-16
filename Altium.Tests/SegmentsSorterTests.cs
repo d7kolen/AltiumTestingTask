@@ -38,6 +38,7 @@ public class SegmentsSorterDynamicSortTests
 
         var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 1, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
+        fileList.Sort();
 
         fileList.Should().HaveCount(2);
 
@@ -65,6 +66,7 @@ public class SegmentsSorterDynamicSortTests
 
         var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
+        fileList.Sort();
 
         fileList.Should().HaveCount(1);
 
@@ -87,6 +89,7 @@ public class SegmentsSorterDynamicSortTests
 
         var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
+        fileList.Sort();
 
         fileList.Should().HaveCount(1);
 
@@ -108,6 +111,7 @@ public class SegmentsSorterDynamicSortTests
 
         var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
+        fileList.Sort();
 
         fileList.Should().HaveCount(1);
 
@@ -129,6 +133,7 @@ public class SegmentsSorterDynamicSortTests
 
         var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
+        fileList.Sort();
 
         fileList.Should().HaveCount(1);
 

@@ -10,9 +10,6 @@ namespace Altium.Core
         const int _fileBufferSize = 1_000_000;
         const int _maxNumber = 9_999;
 
-        const int _minStringSize = 3;
-        const int _maxStringSize = 25;
-
         private StreamWriter _writer;
         private RowDtoAlphabet _alphabet = new();
 
@@ -32,7 +29,7 @@ namespace Altium.Core
             {
                 WriteRow(
                     random.Next(_maxNumber),
-                    _alphabet.RandomString(random, _minStringSize, _maxStringSize));
+                    _alphabet.RandomString(random));
 
                 if (i % 1000000 == 0)
                     logger.Information("Wrote {count} random lines", i);

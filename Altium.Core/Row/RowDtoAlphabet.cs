@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Altium.Core
 {
@@ -11,6 +12,9 @@ namespace Altium.Core
 
         private const int _weightAnalysisLevel = 4;
 
+        const int _minStringSize = 3;
+        const int _maxStringSize = 25;
+
         public RowDtoAlphabet()
         {
             int index = 0;
@@ -18,9 +22,9 @@ namespace Altium.Core
                 _alphabetIndexes[t] = index++;
         }
 
-        public string RandomString(Random random, int minStringSize, int maxStringSize)
+        public string RandomString(Random random)
         {
-            var lenght = random.Next(minStringSize, maxStringSize);
+            var lenght = random.Next(_minStringSize, _maxStringSize);
 
             var symbols = Enumerable.Repeat("", lenght)
                 .Select(_ => _alphabet[random.Next() % _alphabet.Length]);
@@ -28,12 +32,11 @@ namespace Altium.Core
             return string.Concat(symbols);
         }
 
-        public long? StringValueWeight(ReadOnlyMemory<char> stringValue)
+        public long StringValueWeight(ReadOnlyMemory<char> stringValue)
         {
             long sum = 0;
 
             var stringValueSpan = stringValue.Span;
-
             for (int i = 0; i < _weightAnalysisLevel; i++)
             {
                 sum *= _alphabet.Length;
