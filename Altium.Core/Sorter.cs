@@ -48,10 +48,8 @@ public class Sorter
         while (segments.Count > 1)
         {
             var toMerge = segments.Take(SegmentsToMerge).ToList();
-
-            var resultFile = resultFileName;
-            if (segments.Count != toMerge.Count)
-                resultFile = Path.Combine(mergedFolder, $"{++mergeCounter}.txt");
+            
+            var resultFile = Path.Combine(mergedFolder, $"{++mergeCounter}.txt");
 
             await
                 new SegmentsMerger_BTree(resultFile, ReadingBufferSize, _logger)
@@ -63,5 +61,7 @@ public class Sorter
 
             segments.Add(resultFile);
         }
+
+        File.Move(segments[0], resultFileName);
     }
 }
