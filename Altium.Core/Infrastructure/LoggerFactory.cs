@@ -11,7 +11,7 @@ public class LoggerFactory
         var config = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.File(
-                $@"{logFolder}\log-{DateTime.UtcNow:yyyy-MM-dd_hh-mm-ss}.txt",
+                $@"{logFolder}\log-{DateTime.UtcNow:yyyy-MM-dd_HH-mm-ss}.txt",
                 rollingInterval: RollingInterval.Infinite)
              .WriteTo.Console();
 
