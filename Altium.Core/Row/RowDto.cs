@@ -29,11 +29,6 @@ public class RowDto
         OriginLine = originLine;
     }
 
-    /// <summary>
-    /// Essentially, this is lazy loading. It helps to move the RowDto calculation to the parallelized sorting.
-    /// Of course, if somebody request any property during the file reading, the magic will go away.
-    /// On the other hand, this is a trade-off, as it allows for a simplified interaction protocol for clients.
-    /// </summary>
     public RowDto Parse(RowDtoAlphabet alphabet)
     {
         if (_parsed)
