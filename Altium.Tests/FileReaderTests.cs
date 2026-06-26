@@ -18,7 +18,7 @@ public class FileReaderTests : IRowFileTest
 
         await this.AppendLineToFile(file, "5. abc");
 
-        var rows = new FileReader(file, 0).Read().ToList();
+        var rows = new FileReader(file, 0).Read().ToList().ParseAll();
 
         rows.Should().HaveCount(1);
         rows[0].Number.Should().Be(5);
@@ -34,7 +34,7 @@ public class FileReaderTests : IRowFileTest
         await this.AppendLineToFile(file, "5. abc");
         await this.AppendLineToFile(file, "7. def");
 
-        var rows = new FileReader(file, 0).Read().ToList();
+        var rows = new FileReader(file, 0).Read().ToList().ParseAll();
 
         rows.Should().HaveCount(2);
 

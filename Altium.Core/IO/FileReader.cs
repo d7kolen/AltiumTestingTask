@@ -24,6 +24,6 @@ public class FileReader
 
         string? line;
         while ((line = reader.ReadLine()) != null)
-            yield return new RowDto(line, _alphabet);
+            yield return new RowDto(line);
     }
 }

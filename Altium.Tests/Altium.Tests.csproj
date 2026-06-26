@@ -13,6 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Altium.Utilities.CheckResult\Altium.Utilities.CheckResult.csproj" />
         <ProjectReference Include="..\Altium.Core\Altium.Core.csproj" />
     </ItemGroup>
 

@@ -39,13 +39,13 @@ public class SorterTests : IRowFileTest
         await this.AppendLineToFile(inputFile, "9. abc");
 
         var sorter = new Sorter(_folder.SubPath("temp"), _logger);
-        sorter.InitSegmentSize = 1;
-        sorter.ReadingBufferSize = 1;
+        sorter.Settings.MaxSegmentSize = 1;
+        sorter.Settings.ReadingBufferSize = 1;
 
         var fileResult = _folder.SubPath("res.txt");
         await sorter.SortAsync(inputFile, fileResult);
 
-        var resultRows = new FileReader(fileResult, 0).Read().ToList();
+        var resultRows = new FileReader(fileResult, 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(6);
         resultRows[0].Number.Should().Be(4);
@@ -66,13 +66,13 @@ public class SorterTests : IRowFileTest
         await this.AppendLineToFile(inputFile, "4. abc");
 
         var sorter = new Sorter(_folder.SubPath("temp"), _logger);
-        sorter.InitSegmentSize = 10_000;
-        sorter.ReadingBufferSize = 1;
+        sorter.Settings.MaxSegmentSize = 10_000;
+        sorter.Settings.ReadingBufferSize = 1;
 
         var fileResult = _folder.SubPath("res.txt");
         await sorter.SortAsync(inputFile, fileResult);
 
-        var resultRows = new FileReader(fileResult, 0).Read().ToList();
+        var resultRows = new FileReader(fileResult, 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(3);
         resultRows[0].Number.Should().Be(4);

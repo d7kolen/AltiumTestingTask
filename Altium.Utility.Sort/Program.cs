@@ -20,10 +20,10 @@ if (File.Exists(resultFile))
 var inputFile = config["InputFile"]!;
 
 var sorter = new Sorter(tempFolder, logger);
-sorter.InitSegmentSize = 800_000;
-sorter.ReadingBufferSize = 100_000_000;
-sorter.SegmentsToMerge = 1000;
-sorter.SegmentsParallelize = 10;
+sorter.Settings.MaxSegmentSize = 500_000;
+sorter.Settings.ParallelSegmentSorting = 10;
+sorter.Settings.ReadingBufferSize = 10_000_000;
+sorter.Settings.SegmentsToMerge = 200;
 
 try
 {

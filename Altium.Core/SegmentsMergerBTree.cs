@@ -9,7 +9,7 @@ namespace Altium.Core;
 
 public class SegmentsMergerBTree
 {
-    private readonly RowDtoComparer _comparer = new();
+    private readonly RowDtoComparer _comparer;
 
     private readonly string _fileResult;
     private readonly int _readingBufferSize;
@@ -18,10 +18,11 @@ public class SegmentsMergerBTree
     /// <summary>
     /// readingBufferSize defines summarize the buffer size for all opened files
     /// </summary>
-    public SegmentsMergerBTree(string fileResult, int readingBufferSize, ILogger logger)
+    public SegmentsMergerBTree(string fileResult, int readingBufferSize, RowDtoComparer comparer, ILogger logger)
     {
         _fileResult = fileResult;
         _readingBufferSize = readingBufferSize;
+        _comparer = comparer;
         _logger = logger;
     }
 
