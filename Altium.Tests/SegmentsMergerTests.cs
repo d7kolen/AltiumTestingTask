@@ -5,6 +5,7 @@ using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
 using Altium.Core.IO;
+using Altium.Core.Row;
 using Altium.Tests.Tools;
 
 namespace Altium.Tests;
@@ -14,6 +15,7 @@ public class SegmentsMergerTests : IRowFileTest
 {
     #region Init
 
+    private readonly RowDtoComparer _comparer = new();
     private TempFolder _folder = null!;
     private ILogger _logger = null!;
 
@@ -36,10 +38,10 @@ public class SegmentsMergerTests : IRowFileTest
         await this.AppendLineToFile(file2, "6. abc");
 
         var fileResult = _folder.SubPath("res.txt");
-        var segments = new SegmentsMergerBTree(fileResult, 100, _logger);
+        var segments = new SegmentsMergerBTree(fileResult, 100, _comparer, _logger);
         segments.MergeSegments(new() { file1, file2 });
 
-        var resultRows = new FileReader(fileResult, 0).Read().ToList();
+        var resultRows = new FileReader(fileResult, 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(2);
         resultRows[0].Number.Should().Be(5);
@@ -56,10 +58,10 @@ public class SegmentsMergerTests : IRowFileTest
         await this.AppendLineToFile(file2, "6. abc");
 
         var fileResult = _folder.SubPath("res.txt");
-        var segments = new SegmentsMergerBTree(fileResult, 100, _logger);
+        var segments = new SegmentsMergerBTree(fileResult, 100, _comparer, _logger);
         segments.MergeSegments(new() { file2, file1 }); //other file order
 
-        var resultRows = new FileReader(fileResult, 0).Read().ToList();
+        var resultRows = new FileReader(fileResult, 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(2);
         resultRows[0].Number.Should().Be(5);
@@ -78,10 +80,10 @@ public class SegmentsMergerTests : IRowFileTest
         await this.AppendLineToFile(file3, "7. abc");
 
         var fileResult = _folder.SubPath("res.txt");
-        var segments = new SegmentsMergerBTree(fileResult, 100, _logger);
+        var segments = new SegmentsMergerBTree(fileResult, 100, _comparer, _logger);
         segments.MergeSegments(new() { file1, file2, file3 });
 
-        var resultRows = new FileReader(fileResult, 0).Read().ToList();
+        var resultRows = new FileReader(fileResult, 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(3);
         resultRows[0].Number.Should().Be(5);
@@ -102,10 +104,10 @@ public class SegmentsMergerTests : IRowFileTest
         await this.AppendLineToFile(file2, "7. abc");
 
         var fileResult = _folder.SubPath("res.txt");
-        var segments = new SegmentsMergerBTree(fileResult, 100, _logger);
+        var segments = new SegmentsMergerBTree(fileResult, 100, _comparer, _logger);
         segments.MergeSegments(new() { file1, file2 });
 
-        var resultRows = new FileReader(fileResult, 0).Read().ToList();
+        var resultRows = new FileReader(fileResult, 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(4);
         resultRows[0].Number.Should().Be(4);
@@ -127,10 +129,10 @@ public class SegmentsMergerTests : IRowFileTest
         await this.AppendLineToFile(file2, "7. abc");
 
         var fileResult = _folder.SubPath("res.txt");
-        var segments = new SegmentsMergerBTree(fileResult, 100, _logger);
+        var segments = new SegmentsMergerBTree(fileResult, 100, _comparer, _logger);
         segments.MergeSegments(new() { file1, file2 });
 
-        var resultRows = new FileReader(fileResult, 0).Read().ToList();
+        var resultRows = new FileReader(fileResult, 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(4);
         resultRows[0].Number.Should().Be(4);
@@ -149,10 +151,10 @@ public class SegmentsMergerTests : IRowFileTest
         await this.AppendLineToFile(file2, "6. abc");
 
         var fileResult = _folder.SubPath("res.txt");
-        var segments = new SegmentsMergerBTree(fileResult, 100, _logger);
+        var segments = new SegmentsMergerBTree(fileResult, 100, _comparer, _logger);
         segments.MergeSegments(new() { file1, file2 });
 
-        var resultRows = new FileReader(fileResult, 0).Read().ToList();
+        var resultRows = new FileReader(fileResult, 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(2);
         resultRows[0].Number.Should().Be(6);

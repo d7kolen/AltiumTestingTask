@@ -4,27 +4,37 @@ namespace Altium.Core.Row;
 
 public class RowDto
 {
-    private readonly RowDtoAlphabet _alphabet;
     private bool _parsed = false;
 
+    /// <summary>
+    /// Using the OriginalLine in a kind of performance optimization.
+    /// I tried several approaches here:
+    /// 1. Split + concatenation initially.
+    /// 2. Keep the OriginLine to exclude concatenation for the writing after that
+    /// But the way with the memory sharing between the OriginLine and the StringValue is the most efficient.
+    /// This is because memory allocation for small objects appears to be the bottleneck here.
+    ///
+    /// Answer on the comment:
+    /// OriginLine appears unnecessary since the writer can generate
+    /// the Row directly from the number and text parts. Simplifying this will streamline the code.
+    /// </summary>
     public string OriginLine { get; }
 
-    private int _number;
-    public int Number => Parse()._number;
+    public int Number { get; private set; }
+    public ReadOnlyMemory<char> StringValue { get; private set; }
+    public long StringValueWeight { get; private set; }
 
-    private ReadOnlyMemory<char> _stringValue;
-    public ReadOnlyMemory<char> StringValue => Parse()._stringValue;
-
-    long? _stringValueWeight;
-    public long? StringValueWeight => Parse()._stringValueWeight;
-
-    public RowDto(string originLine, RowDtoAlphabet alphabet)
+    public RowDto(string originLine)
     {
         OriginLine = originLine;
-        _alphabet = alphabet;
     }
 
-    private RowDto Parse()
+    /// <summary>
+    /// Essentially, this is lazy loading. It helps to move the RowDto calculation to the parallelized sorting.
+    /// Of course, if somebody request any property during the file reading, the magic will go away.
+    /// On the other hand, this is a trade-off, as it allows for a simplified interaction protocol for clients.
+    /// </summary>
+    public RowDto Parse(RowDtoAlphabet alphabet)
     {
         if (_parsed)
             return this;
@@ -33,9 +43,9 @@ public class RowDto
         if (dotIndex < 0)
             throw new NotSupportedException();
 
-        _number = int.Parse(OriginLine.AsSpan(0, dotIndex));
-        _stringValue = OriginLine.AsMemory(dotIndex + 2); //". "
-        _stringValueWeight = _alphabet.StringValueWeight(_stringValue);
+        Number = int.Parse(OriginLine.AsSpan(0, dotIndex));
+        StringValue = OriginLine.AsMemory(dotIndex + 2); //". "
+        StringValueWeight = alphabet.StringValueWeight(StringValue);
 
         _parsed = true;
 

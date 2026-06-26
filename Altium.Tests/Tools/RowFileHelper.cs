@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,5 +21,14 @@ static class RowFileHelper
     public static string StringValueAsString(this RowDto row)
     {
         return new string(row.StringValue.Span);
+    }
+
+    public static T ParseAll<T>(this T rows) where T : IEnumerable<RowDto>
+    {
+        var alphabet = new RowDtoAlphabet();
+        foreach (var t in rows)
+            t.Parse(alphabet);
+
+        return rows;
     }
 }

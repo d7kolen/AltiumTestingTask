@@ -16,6 +16,7 @@ public class SegmentsSorterDynamicSortTests
 {
     #region Init
 
+    private readonly RowDtoComparer _comparer = new();
     private TempFolder _folder = null!;
     private ILogger _logger = null!;
     private RowDtoAlphabet _alphabet = new();
@@ -34,24 +35,25 @@ public class SegmentsSorterDynamicSortTests
     {
         var rows = new List<RowDto>
         {
-            new RowDto("7. abc", _alphabet),
-            new RowDto("6. abc", _alphabet),
-            new RowDto("5. abc", _alphabet),
+            new RowDto("7. abc"),
+            new RowDto("6. abc"),
+            new RowDto("5. abc"),
         };
 
-        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 1, 1, _logger);
+        var settings = new SorterSettings { MaxSegmentSize = 1, ParallelSegmentSorting = 1 };
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), settings, _comparer, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
         fileList.Should().HaveCount(2);
 
-        var rows0 = new FileReader(fileList[0], 0).Read().ToList();
+        var rows0 = new FileReader(fileList[0], 0).Read().ToList().ParseAll();
 
         rows0.Should().HaveCount(2);
         rows0[0].Number.Should().Be(6);
         rows0[1].Number.Should().Be(7);
 
-        var rows1 = new FileReader(fileList[1], 0).Read().ToList();
+        var rows1 = new FileReader(fileList[1], 0).Read().ToList().ParseAll();
 
         rows1.Should().HaveCount(1);
         rows1[0].Number.Should().Be(5);
@@ -62,18 +64,19 @@ public class SegmentsSorterDynamicSortTests
     {
         var rows = new List<RowDto>
         {
-            new RowDto("7. abc", _alphabet),
-            new RowDto("6. abc", _alphabet),
-            new RowDto("5. abc", _alphabet),
+            new RowDto("7. abc"),
+            new RowDto("6. abc"),
+            new RowDto("5. abc"),
         };
 
-        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var settings = new SorterSettings { MaxSegmentSize = 100, ParallelSegmentSorting = 1 };
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), settings, _comparer, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
         fileList.Should().HaveCount(1);
 
-        var resultRows = new FileReader(fileList[0], 0).Read().ToList();
+        var resultRows = new FileReader(fileList[0], 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(3);
         resultRows[0].Number.Should().Be(5);
@@ -86,19 +89,20 @@ public class SegmentsSorterDynamicSortTests
     {
         var rows = new List<RowDto>
         {
-            new RowDto("5. def", _alphabet),
-            new RowDto("5. abc", _alphabet),
+            new RowDto("5. def"),
+            new RowDto("5. abc"),
         };
 
-        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var settings = new SorterSettings { MaxSegmentSize = 100, ParallelSegmentSorting = 1 };
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), settings, _comparer, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
         fileList.Should().HaveCount(1);
 
-        var resultRows = new FileReader(fileList[0], 0).Read().ToList();
+        var resultRows = new FileReader(fileList[0], 0).Read().ToList().ParseAll();
 
-        resultRows.Should().HaveCount(2);        
+        resultRows.Should().HaveCount(2);
         resultRows[0].StringValueAsString().Should().Be("abc");
         resultRows[1].StringValueAsString().Should().Be("def");
     }
@@ -108,17 +112,18 @@ public class SegmentsSorterDynamicSortTests
     {
         var rows = new List<RowDto>
         {
-            new RowDto("5. def", _alphabet),
-            new RowDto("6. abc", _alphabet), //StringValue has sorting priority
+            new RowDto("5. def"),
+            new RowDto("6. abc"), //StringValue has sorting priority
         };
 
-        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var settings = new SorterSettings { MaxSegmentSize = 100, ParallelSegmentSorting = 1 };
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), settings, _comparer, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
         fileList.Should().HaveCount(1);
 
-        var resultRows = new FileReader(fileList[0], 0).Read().ToList();
+        var resultRows = new FileReader(fileList[0], 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(2);
         resultRows[0].StringValueAsString().Should().Be("abc");
@@ -130,17 +135,18 @@ public class SegmentsSorterDynamicSortTests
     {
         var rows = new List<RowDto>
         {
-            new RowDto("5. abcd", _alphabet),
-            new RowDto("5. abc", _alphabet), //StringValue has sorting priority
+            new RowDto("5. abcd"),
+            new RowDto("5. abc"), //StringValue has sorting priority
         };
 
-        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var settings = new SorterSettings { MaxSegmentSize = 100, ParallelSegmentSorting = 1 };
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), settings, _comparer, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
         fileList.Should().HaveCount(1);
 
-        var resultRows = new FileReader(fileList[0], 0).Read().ToList();
+        var resultRows = new FileReader(fileList[0], 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(2);
         resultRows[0].StringValueAsString().Should().Be("abc");
@@ -152,17 +158,18 @@ public class SegmentsSorterDynamicSortTests
     {
         var rows = new List<RowDto>
         {
-            new RowDto("5. abc", _alphabet),
-            new RowDto("5. 123", _alphabet), //StringValue has sorting priority
+            new RowDto("5. abc"),
+            new RowDto("5. 123"), //StringValue has sorting priority
         };
 
-        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var settings = new SorterSettings { MaxSegmentSize = 100, ParallelSegmentSorting = 1 };
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), settings, _comparer, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
         fileList.Should().HaveCount(1);
 
-        var resultRows = new FileReader(fileList[0], 0).Read().ToList();
+        var resultRows = new FileReader(fileList[0], 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(2);
         resultRows[0].StringValueAsString().Should().Be("123");
@@ -174,17 +181,18 @@ public class SegmentsSorterDynamicSortTests
     {
         var rows = new List<RowDto>
         {
-            new RowDto("5. 123", _alphabet),
-            new RowDto("5. 23", _alphabet), //StringValue has sorting priority
+            new RowDto("5. 123"),
+            new RowDto("5. 23"), //StringValue has sorting priority
         };
 
-        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var settings = new SorterSettings { MaxSegmentSize = 100, ParallelSegmentSorting = 1 };
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), settings, _comparer, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
         fileList.Should().HaveCount(1);
 
-        var resultRows = new FileReader(fileList[0], 0).Read().ToList();
+        var resultRows = new FileReader(fileList[0], 0).Read().ToList().ParseAll();
 
         resultRows.Should().HaveCount(2);
         resultRows[0].StringValueAsString().Should().Be("123");

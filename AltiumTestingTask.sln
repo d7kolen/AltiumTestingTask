@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Altium.Utility.Sort", "Alti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Altium.Utility.NewFile", "Altium.Utility.NewFile\Altium.Utility.NewFile.csproj", "{3DF1B17F-18A7-4287-9C0C-BC98C0AADD52}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Altium.Utilities.CheckResult", "Altium.Utilities.CheckResult\Altium.Utilities.CheckResult.csproj", "{62504F81-81C9-44A4-9001-9AD4877DE4D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,11 +35,17 @@ Global
 		{3DF1B17F-18A7-4287-9C0C-BC98C0AADD52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DF1B17F-18A7-4287-9C0C-BC98C0AADD52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DF1B17F-18A7-4287-9C0C-BC98C0AADD52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62504F81-81C9-44A4-9001-9AD4877DE4D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62504F81-81C9-44A4-9001-9AD4877DE4D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62504F81-81C9-44A4-9001-9AD4877DE4D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62504F81-81C9-44A4-9001-9AD4877DE4D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E24DE064-00D4-494C-9E49-737980BFF354}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal
