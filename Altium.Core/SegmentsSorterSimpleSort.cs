@@ -5,10 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Altium.Core.Async;
+using Altium.Core.IO;
+using Altium.Core.Row;
 
 namespace Altium.Core;
 
-public class SegmentsSorter_SimpleSort
+public class SegmentsSorterSimpleSort
 {
     private readonly RowDtoComparer _comparer = new();
     private readonly string _folder;
@@ -19,7 +22,7 @@ public class SegmentsSorter_SimpleSort
     /// <summary>
     /// segmentSize is approximately segment size. Usually, we will have a bigger segment on one additional block.
     /// </summary>
-    public SegmentsSorter_SimpleSort(string folder, int maxSegmentSize, int parallelSorting, ILogger logger)
+    public SegmentsSorterSimpleSort(string folder, int maxSegmentSize, int parallelSorting, ILogger logger)
     {
         _folder = folder;
         _maxSegmentSize = maxSegmentSize;
@@ -47,7 +50,7 @@ public class SegmentsSorter_SimpleSort
 
                 if (segmentRows.Count > _maxSegmentSize)
                 {
-                    _logger.Information("Segment {number} prepared", segmentNumber);
+                    _logger.Information("Segment {number} was prepared", segmentNumber);
 
                     var tSegmentRows = segmentRows;
                     segmentRows = new(_maxSegmentSize);
@@ -66,7 +69,8 @@ public class SegmentsSorter_SimpleSort
 
     private async Task<string> FlushSegmentAsync(List<RowDto> segmentRows, int segmentNumber, ConcurrentBag<string> result)
     {
-        //gives the calling thread a green light
+        // The method returns immediately, while the remaining work is performed asynchronously.
+        // This allows us to use the async/await syntax to create new asynchronous tasks.
         await Task.Yield();
 
         _logger.Information("Sorting segment {number}", segmentNumber);
@@ -75,10 +79,7 @@ public class SegmentsSorter_SimpleSort
 
         _logger.Information("Sorted segment {number}", segmentNumber);
 
-        string segmentFileName = SegmentFileName(segmentNumber);
-        using var writer = new FileWriter(segmentFileName);
-        foreach (var t in segmentRows)
-            writer.WriteRow(t);
+        var segmentFileName = SaveSegment(segmentRows, segmentNumber);
 
         _logger.Information("Wrote segment {number} to file", segmentNumber);
 
@@ -87,11 +88,22 @@ public class SegmentsSorter_SimpleSort
         return segmentFileName;
     }
 
+    private string SaveSegment(List<RowDto> segmentRows, int segmentNumber)
+    {
+        string fileName = SegmentFileName(segmentNumber);
+        using var writer = new FileWriter(fileName);
+        
+        foreach (var t in segmentRows)
+            writer.WriteRow(t);
+        
+        return fileName;
+    }
+
     private string SegmentFileName(int segmentNumber)
     {
         var folder = _folder;
 
-        //Protecting the file system from a huge amount of files in one directory
+        //Protecting the file system from a huge count of files in one directory
         var subfolderId = segmentNumber / 100;
         if (subfolderId > 0)
         {

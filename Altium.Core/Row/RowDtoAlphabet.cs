@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Altium.Core
+namespace Altium.Core.Row
 {
     public class RowDtoAlphabet
     {

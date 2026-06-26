@@ -5,6 +5,9 @@ using Serilog;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Altium.Core.IO;
+using Altium.Core.Row;
+using Altium.Tests.Tools;
 
 namespace Altium.Tests;
 
@@ -36,7 +39,7 @@ public class SegmentsSorterDynamicSortTests
             new RowDto("5. abc", _alphabet),
         };
 
-        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 1, 1, _logger);
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 1, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
@@ -64,7 +67,7 @@ public class SegmentsSorterDynamicSortTests
             new RowDto("5. abc", _alphabet),
         };
 
-        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
@@ -87,7 +90,7 @@ public class SegmentsSorterDynamicSortTests
             new RowDto("5. abc", _alphabet),
         };
 
-        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
@@ -109,7 +112,7 @@ public class SegmentsSorterDynamicSortTests
             new RowDto("6. abc", _alphabet), //StringValue has sorting priority
         };
 
-        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
@@ -131,7 +134,7 @@ public class SegmentsSorterDynamicSortTests
             new RowDto("5. abc", _alphabet), //StringValue has sorting priority
         };
 
-        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
@@ -153,7 +156,7 @@ public class SegmentsSorterDynamicSortTests
             new RowDto("5. 123", _alphabet), //StringValue has sorting priority
         };
 
-        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
@@ -175,7 +178,7 @@ public class SegmentsSorterDynamicSortTests
             new RowDto("5. 23", _alphabet), //StringValue has sorting priority
         };
 
-        var segments = new SegmentsSorter_SimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
+        var segments = new SegmentsSorterSimpleSort(_folder.SubPath("segments"), 100, 1, _logger);
         var fileList = await segments.CreateSegmentsAsync(rows);
         fileList.Sort();
 
