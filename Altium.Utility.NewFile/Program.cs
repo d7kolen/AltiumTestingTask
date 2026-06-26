@@ -1,12 +1,15 @@
-﻿using Altium.Core;
+﻿using System.IO;
+using Altium.Core;
+using Altium.Core.Infrastructure;
+using Altium.Core.IO;
 
 var config = new ConfigLoader().Load();
 
-using var logger = new LoggerFactory().CreateLogger(config["LogFolder"]);
+using var logger = new LoggerFactory().CreateLogger(config["LogFolder"]!);
 
 logger.Information("Start");
 
-var filePath = config["ResultFile"];
+var filePath = config["ResultFile"]!;
 if (File.Exists(filePath))
     File.Delete(filePath);
 

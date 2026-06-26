@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Altium.Core;
+namespace Altium.Core.Async;
 
 class TaskSet : IAsyncDisposable
 {
     private readonly int _capacity;
     private readonly CancellationToken _cancel;
     private List<Task> _workingTasks;
-    private SemaphoreSlim _semaphore = new(1);
+    private readonly SemaphoreSlim _semaphore = new(1);
 
     public TaskSet(int capacity, CancellationToken cancel)
     {
@@ -50,9 +50,10 @@ class TaskSet : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (_workingTasks == null)
+        if (_workingTasks == null!)
             return;
+        
         await Task.WhenAll(_workingTasks);
-        _workingTasks = null;
+        _workingTasks = null!;
     }
 }

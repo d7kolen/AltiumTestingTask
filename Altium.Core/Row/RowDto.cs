@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Altium.Core;
+namespace Altium.Core.Row;
 
 public class RowDto
 {

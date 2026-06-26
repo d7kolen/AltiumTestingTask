@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 
-namespace Altium.Core;
+namespace Altium.Core.Row;
 
 class RowDtoBTree
 {
-    public IEnumerator<RowDto> Current { get; set; }
+    public IEnumerator<RowDto> Current { get; set; } = null!;
 
-    public RowDtoBTree? Left { get; set; }
-    public RowDtoBTree? Right { get; set; }
+    private RowDtoBTree? Left { get; set; }
+    private RowDtoBTree? Right { get; set; }
 
     public RowDtoBTree Min()
     {
@@ -55,7 +55,7 @@ class RowDtoBTree
         }
     }
 
-    public static RowDtoBTree RemoveMin(RowDtoBTree? tree)
+    public static RowDtoBTree? RemoveMin(RowDtoBTree? tree)
     {
         if (tree == null)
             return null;

@@ -3,7 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 
-namespace Altium.Tests;
+namespace Altium.Tests.Tools;
 
 class TempFolder
 {

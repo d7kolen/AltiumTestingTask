@@ -1,61 +1,62 @@
-﻿using Serilog;
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
+using Altium.Core.Row;
+using Serilog;
 
-namespace Altium.Core
+namespace Altium.Core.IO;
+
+public class FileWriter : IDisposable
 {
-    public class FileWriter : IDisposable
+    private const int FileBufferSize = 1_000_000;
+    private const int MaxNumber = 9_999;
+
+    private StreamWriter _writer;
+    private RowDtoAlphabet _alphabet = new();
+
+    public FileWriter(string fileName)
     {
-        const int _fileBufferSize = 1_000_000;
-        const int _maxNumber = 9_999;
+        var stream = new FileStream(fileName, FileMode.CreateNew, FileAccess.Write);
 
-        private StreamWriter _writer;
-        private RowDtoAlphabet _alphabet = new();
+        //writer will close the 'stream' implicitly
+        _writer = new StreamWriter(stream, Encoding.UTF8, FileBufferSize);
+    }
 
-        public FileWriter(string fileName)
+    public void WriteRandomRows(int count, ILogger logger)
+    {
+        var random = new Random(new Guid().GetHashCode());
+
+        for (int i = 0; i < count; i++)
         {
-            Stream _stream = new FileStream(fileName, FileMode.CreateNew, FileAccess.Write);
+            WriteRow(
+                random.Next(MaxNumber),
+                _alphabet.RandomString(random));
 
-            //writer will close the 'stream' implicitly
-            _writer = new StreamWriter(_stream, Encoding.UTF8, _fileBufferSize);
+            if (i % 1000000 == 0)
+                logger.Information("Wrote {count} random lines", i);
         }
+    }
 
-        public void WriteRandomRows(int count, ILogger logger)
-        {
-            var random = new Random(new Guid().GetHashCode());
+    public void WriteRow(RowDto row)
+    {
+        _writer.WriteLine(row.OriginLine);
+    }
 
-            for (int i = 0; i < count; i++)
-            {
-                WriteRow(
-                    random.Next(_maxNumber),
-                    _alphabet.RandomString(random));
+    private void WriteRow(int number, string stringValue)
+    {
+        _writer.Write(number.ToString());
+        _writer.Write(". ");
+        _writer.Write(stringValue);
+        _writer.WriteLine();
+    }
 
-                if (i % 1000000 == 0)
-                    logger.Information("Wrote {count} random lines", i);
-            }
-        }
+    public void Dispose()
+    {
+        // if repeat call
+        if (_writer == null!)
+            return;
 
-        public void WriteRow(RowDto row)
-        {
-            _writer.WriteLine(row.OriginLine);
-        }
-
-        private void WriteRow(int number, string stringValue)
-        {
-            _writer.Write(number.ToString());
-            _writer.Write(". ");
-            _writer.Write(stringValue);
-            _writer.WriteLine();
-        }
-
-        public void Dispose()
-        {
-            if (_writer == null)
-                return;
-
-            _writer.Dispose();
-            _writer = null;
-        }
+        _writer.Dispose();
+        _writer = null!;
     }
 }

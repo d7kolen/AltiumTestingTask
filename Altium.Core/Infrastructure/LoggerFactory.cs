@@ -1,8 +1,8 @@
-﻿using Serilog;
+﻿using System;
+using Serilog;
 using Serilog.Core;
-using System;
 
-namespace Altium.Core;
+namespace Altium.Core.Infrastructure;
 
 public class LoggerFactory
 {

@@ -5,6 +5,8 @@ using Serilog;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Altium.Core.IO;
+using Altium.Tests.Tools;
 
 namespace Altium.Tests;
 
