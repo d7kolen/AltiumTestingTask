@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using Altium.Core;
 using Altium.Core.Infrastructure;
 using Altium.Core.IO;
 

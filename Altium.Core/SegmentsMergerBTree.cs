@@ -16,7 +16,7 @@ public class SegmentsMergerBTree
     private readonly ILogger _logger;
 
     /// <summary>
-    /// readingBufferSize defines a summary size of buffers for all reading files
+    /// readingBufferSize defines summarize the buffer size for all opened files
     /// </summary>
     public SegmentsMergerBTree(string fileResult, int readingBufferSize, ILogger logger)
     {
@@ -29,28 +29,21 @@ public class SegmentsMergerBTree
     {
         _logger.Information("Start merging {count} files", files.Count);
 
-        var bufferSize = _readingBufferSize;
-
         var fullInputList = new List<IEnumerator<RowDto>>();
 
         using var writer = new FileWriter(_fileResult);
 
         try
         {
-            CreateInputStreams(files, bufferSize, fullInputList);
+            OpenInputStreams(files, fullInputList);
 
-            var acutualList = fullInputList.Where(x => x.MoveNext()).ToList();
-
-            RowDtoBTree? actualTree = null;
-            foreach (var t in acutualList)
-                actualTree = RowDtoBTree.Add(actualTree, t, _comparer);
-
-            while (actualTree != null)
+            var allActualInputs = CreateInputTree(fullInputList);
+            while (allActualInputs != null)
             {
-                var min = actualTree.Min();
+                var min = allActualInputs.Min();
                 writer.WriteRow(min.Current.Current);
 
-                MoveNext(ref actualTree);
+                MoveNext(ref allActualInputs);
             }
         }
         finally
@@ -62,6 +55,20 @@ public class SegmentsMergerBTree
         _logger.Information("Finish merging {count} files", files.Count);
     }
 
+    private RowDtoBTree? CreateInputTree(List<IEnumerator<RowDto>> allInputs)
+    {
+        RowDtoBTree? allInputsTree = null;
+
+        var allActualInputs = allInputs.Where(x => x.MoveNext()).ToList();
+        foreach (var t in allActualInputs)
+            allInputsTree = RowDtoBTree.Add(allInputsTree, t, _comparer);
+
+        return allInputsTree;
+    }
+
+    /// <summary>
+    /// Move next the minimal value and rebalance the tree
+    /// </summary>
     void MoveNext(ref RowDtoBTree? list)
     {
         if (list == null)
@@ -74,11 +81,16 @@ public class SegmentsMergerBTree
             list = RowDtoBTree.Add(list, minItem, _comparer);
     }
 
-    void CreateInputStreams(List<string> files, int bufferSize, List<IEnumerator<RowDto>> fullList)
+    void OpenInputStreams(List<string> files, List<IEnumerator<RowDto>> fullList)
     {
+        // Using the fullList parameter instead of return helps as to dispose all opened streams,
+        // despite we finished the function and stream opening or not
+
+        var bufferSizeOfSingleFile = _readingBufferSize / files.Count;
+
         foreach (var t in files)
         {
-            var tInput = new FileReader(t, bufferSize).Read().GetEnumerator();
+            var tInput = new FileReader(t, bufferSizeOfSingleFile).Read().GetEnumerator();
             fullList.Add(tInput);
         }
     }
